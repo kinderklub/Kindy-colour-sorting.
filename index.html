@@ -1,0 +1,2655 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Asingkan Warna | Colour Sort - Kinder Klub</title>
+  <!-- Google Fonts: Fredoka & Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #FF5E7E;
+      --primary-dark: #E03E60;
+      --secondary: #4ECDC4;
+      --yellow-sun: #FFD166;
+      --green-leaf: #06D6A0;
+      --purple-fun: #A575F8;
+      --orange-pop: #FF9F1C;
+      --blue-sky: #4EA8DE;
+      --bg-cream: #FFFDF9;
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --card-border: #FFD8A8;
+      --text-dark: #2D3142;
+      --text-soft: #60677D;
+      --shadow-chibi: 0 8px 24px rgba(78, 42, 132, 0.14);
+      --font-main: 'Fredoka', 'Quicksand', -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: #73D2F3;
+      color: var(--text-dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ======== RAINBOW SORTING GARDEN ANIMATED BG ======== */
+    .garden-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background: linear-gradient(180deg, #6BC9FF 0%, #BFE7FF 45%, #CEF5C6 75%, #88E788 100%);
+    }
+
+    .sun-chibi {
+      position: absolute;
+      top: 18px;
+      right: 25px;
+      width: 70px;
+      height: 70px;
+      animation: spinSlow 30s linear infinite;
+    }
+
+    .rainbow-arc {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(120vw, 800px);
+      height: 280px;
+      opacity: 0.85;
+    }
+
+    .cloud {
+      position: absolute;
+      fill: #FFFFFF;
+      filter: drop-shadow(0 4px 10px rgba(0, 70, 150, 0.08));
+      animation: cloudFloat linear infinite;
+    }
+
+    .cloud-1 { top: 40px; left: -100px; width: 130px; animation-duration: 38s; }
+    .cloud-2 { top: 110px; left: -160px; width: 170px; animation-duration: 52s; animation-delay: -18s; }
+    .cloud-3 { top: 75px; left: -120px; width: 110px; animation-duration: 44s; animation-delay: -30s; }
+
+    .bunting-rope {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      z-index: 1;
+    }
+
+    .garden-hills {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 190px;
+      z-index: 1;
+    }
+
+    .flower-sway {
+      position: absolute;
+      bottom: 12px;
+      transform-origin: bottom center;
+      animation: flowerSway 3.2s ease-in-out infinite alternate;
+    }
+
+    .balloon-chibi {
+      position: absolute;
+      animation: balloonFloat 6s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+
+    @keyframes spinSlow { 100% { transform: rotate(360deg); } }
+    @keyframes cloudFloat { 0% { transform: translateX(-180px); } 100% { transform: translateX(calc(100vw + 200px)); } }
+    @keyframes flowerSway { 0% { transform: rotate(-5deg); } 100% { transform: rotate(7deg); } }
+    @keyframes balloonFloat { 0% { transform: translateY(0) rotate(-2deg); } 100% { transform: translateY(-16px) rotate(4deg); } }
+
+    /* ======== APP STRUCTURE ======== */
+    #app-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 10px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Header */
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 3px solid #FFE0B2;
+      border-radius: 26px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-logo-badge {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #FF6B8B, #FFA07A);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(255, 107, 139, 0.4);
+      padding: 6px;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #FF3366, #FF9900);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      background: #FFF;
+      border: 2px solid #E0E7FF;
+      color: var(--text-dark);
+      font-family: var(--font-main);
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: all 0.15s ease;
+    }
+    .pill-btn:active {
+      transform: scale(0.95);
+    }
+    .pill-btn.primary {
+      background: linear-gradient(135deg, #FF6B8B, #FF8E53);
+      color: white;
+      border-color: #FFA5A5;
+      box-shadow: 0 3px 8px rgba(255, 107, 139, 0.35);
+    }
+
+    .lang-toggle {
+      background: #F0F7FF;
+      border: 2px solid #90CAF9;
+      color: #1976D2;
+    }
+
+    .svg-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    /* Content Card */
+    .game-card-panel {
+      flex: 1;
+      background: var(--card-bg);
+      border: 4px solid #FFE3BA;
+      border-radius: 30px;
+      box-shadow: var(--shadow-chibi);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      backdrop-filter: blur(8px);
+      margin-bottom: 12px;
+    }
+
+    /* Screen Transitions */
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      animation: screenPop 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes screenPop {
+      0% { opacity: 0; transform: scale(0.97); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Mascot Companion */
+    .mascot-companion {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #FFF9E6;
+      border: 2.5px solid #FFE082;
+      border-radius: 22px;
+      padding: 8px 16px 8px 10px;
+      box-shadow: 0 3px 8px rgba(255, 193, 7, 0.15);
+      margin-bottom: 14px;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .mascot-avatar {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .mascot-speech {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #795548;
+      line-height: 1.3;
+    }
+
+    .mascot-idle { animation: mascotBob 2.5s ease-in-out infinite; }
+    .mascot-happy { animation: mascotJump 0.6s ease; }
+    .mascot-confused { animation: mascotWiggle 0.5s ease; }
+
+    @keyframes mascotBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes mascotJump {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-12px) scale(1.12); }
+    }
+    @keyframes mascotWiggle {
+      0%, 100% { transform: rotate(0); }
+      25% { transform: rotate(-8deg); }
+      75% { transform: rotate(8deg); }
+    }
+
+    /* Big Action Buttons */
+    .big-btn {
+      width: 100%;
+      padding: 16px 14px;
+      font-family: var(--font-main);
+      font-size: 1.25rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .big-btn:active {
+      transform: translateY(3px) scale(0.98);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .big-btn.red-play {
+      background: linear-gradient(135deg, #FF5252, #FF7675);
+      color: #FFF;
+      border-bottom: 5px solid #D63031;
+    }
+    .big-btn.green-start {
+      background: linear-gradient(135deg, #00B894, #55EFC4);
+      color: #004D40;
+      border-bottom: 5px solid #00897B;
+    }
+    .big-btn.blue-nav {
+      background: linear-gradient(135deg, #0984E3, #74B9FF);
+      color: #FFF;
+      border-bottom: 5px solid #0652DD;
+    }
+
+    /* Home menu grid */
+    .home-hero-wrap {
+      text-align: center;
+      margin: 10px 0 16px;
+    }
+    .home-hero-title {
+      font-size: 1.7rem;
+      color: #FF5252;
+      margin-bottom: 4px;
+    }
+    .home-hero-sub {
+      color: var(--text-soft);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .home-menu-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .menu-card-btn {
+      background: #FFFFFF;
+      border: 3.5px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 18px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+    .menu-card-btn:active {
+      transform: scale(0.97);
+    }
+    .menu-icon-wrap {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .menu-card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-align: left;
+    }
+    .menu-card-sub {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-soft);
+    }
+
+    /* How to Play Guide Card on Front Page */
+    .how-to-play-card {
+      background: #FFFDF5;
+      border: 3px dashed #FFD166;
+      border-radius: 22px;
+      padding: 12px 10px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 10px rgba(255, 209, 102, 0.12);
+    }
+    .how-to-play-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #B45309;
+      margin-bottom: 10px;
+    }
+    .steps-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .step-tile {
+      background: #FFFFFF;
+      border: 2px solid #FFE082;
+      border-radius: 16px;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .step-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B8B, #FF8E53);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+      box-shadow: 0 2px 4px rgba(255, 107, 139, 0.3);
+    }
+    .step-art-preview {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+    .step-art-preview svg {
+      width: 100%;
+      height: 100%;
+    }
+    .step-title-text {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.2;
+    }
+    .step-desc-text {
+      font-size: 0.64rem;
+      font-weight: 600;
+      color: var(--text-soft);
+      margin-top: 2px;
+      line-height: 1.15;
+    }
+
+    /* Mode Selection Grid */
+    .mode-selection-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 18px 0 24px;
+    }
+    .mode-tile {
+      background: #FFFFFF;
+      border: 3.5px solid #E0E7FF;
+      border-radius: 22px;
+      padding: 20px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .mode-tile:hover, .mode-tile:focus {
+      border-color: #FF6B8B;
+      background: #FFF0F3;
+      transform: translateY(-2px);
+    }
+    .mode-tile:active {
+      transform: scale(0.96);
+    }
+    .mode-badge {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #FF5252;
+    }
+    .mode-desc {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-soft);
+    }
+
+    /* Gameplay Screen */
+    .gameplay-hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #FFFFFF;
+      border: 2px solid #E0E7FF;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .hud-chip {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hud-highlight {
+      color: #FF3366;
+      font-weight: 800;
+    }
+
+    .instruction-bar {
+      text-align: center;
+      background: linear-gradient(90deg, #FFEAA7, #FFD3B6);
+      border: 2px solid #FFA07A;
+      border-radius: 18px;
+      padding: 8px 14px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #795548;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Objects Stage */
+    .stage-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8E99A8;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .objects-playground {
+      background: #F8FAFC;
+      border: 3px dashed #CBD5E1;
+      border-radius: 24px;
+      padding: 14px;
+      min-height: 125px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .chibi-object-item {
+      width: 76px;
+      height: 76px;
+      background: #FFFFFF;
+      border: 3px solid #E2E8F0;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+    .chibi-object-item:active {
+      transform: scale(0.92);
+    }
+    .chibi-object-item.selected {
+      border-color: #FF5252;
+      background: #FFF5F5;
+      transform: scale(1.14) translateY(-4px);
+      box-shadow: 0 10px 20px rgba(255, 82, 82, 0.35);
+      animation: selectedPulse 1.2s ease-in-out infinite alternate;
+      z-index: 5;
+    }
+    .select-indicator-badge {
+      position: absolute;
+      top: -20px;
+      width: 22px;
+      height: 22px;
+      animation: bouncePointer 0.6s infinite alternate;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chibi-object-item.shaking {
+      animation: gentleShake 0.45s ease;
+      border-color: #FFA726;
+    }
+
+    @keyframes selectedPulse {
+      0% { transform: scale(1.1) translateY(-3px); }
+      100% { transform: scale(1.16) translateY(-7px); }
+    }
+    @keyframes bouncePointer {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-5px); }
+    }
+    @keyframes gentleShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    .obj-svg-wrapper {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .obj-svg-wrapper svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+    }
+    .obj-name-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #64748B;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 90%;
+    }
+
+    /* Colour Baskets Area */
+    .baskets-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .colour-basket {
+      border-radius: 22px;
+      border: 3.5px solid #CBD5E1;
+      background: #FFFFFF;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      min-height: 145px;
+    }
+    .colour-basket:active {
+      transform: scale(0.96);
+    }
+    .colour-basket.target-active {
+      animation: basketTargetGlow 1.2s ease-in-out infinite alternate;
+      border-color: currentColor;
+    }
+    @keyframes basketTargetGlow {
+      0% { box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+      100% { box-shadow: 0 6px 18px currentColor; }
+    }
+
+    .basket-top-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .colour-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,0,0,0.15);
+    }
+    .basket-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .basket-subtext {
+      font-size: 0.72rem;
+      font-weight: 600;
+      opacity: 0.85;
+    }
+
+    .basket-interior {
+      flex: 1;
+      width: 100%;
+      background: rgba(240, 244, 248, 0.7);
+      border-radius: 14px;
+      border: 2px dashed rgba(0,0,0,0.1);
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      justify-content: center;
+      padding: 5px;
+      gap: 5px;
+      min-height: 62px;
+    }
+
+    .sorted-mini-object {
+      width: 36px;
+      height: 36px;
+      background: white;
+      border-radius: 10px;
+      border: 2px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: dropIntoBasket 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      padding: 3px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .sorted-mini-object svg {
+      width: 100%;
+      height: 100%;
+    }
+    .sorted-mini-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 14px;
+      height: 14px;
+    }
+
+    @keyframes dropIntoBasket {
+      0% { transform: scale(0) translateY(-20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    /* Gentle Toast Message */
+    .toast-notice {
+      position: fixed;
+      top: 75px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #FFEAA7;
+      border: 3px solid #FDCB6E;
+      color: #6D4C41;
+      padding: 10px 22px;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast-notice.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    .toast-svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Screen: Result */
+    .result-box {
+      text-align: center;
+      padding: 10px 0;
+    }
+    .celebration-burst {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 10px;
+      animation: starPop 0.8s infinite alternate;
+    }
+    @keyframes starPop {
+      0% { transform: scale(0.95) rotate(-4deg); }
+      100% { transform: scale(1.1) rotate(4deg); }
+    }
+    .result-title {
+      font-size: 1.85rem;
+      color: #FF5252;
+      margin-bottom: 6px;
+    }
+    .result-stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 18px 0 24px;
+    }
+    .stat-pill {
+      background: #FFFFFF;
+      border: 2.5px solid #FFE0B2;
+      border-radius: 18px;
+      padding: 12px 16px;
+      flex: 1;
+      max-width: 170px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+    .stat-pill-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #FF7043;
+    }
+    .stat-pill-lbl {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-soft);
+    }
+
+    /* Screen: Picture Collection */
+    .collection-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .category-filter-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .category-filter-chips::-webkit-scrollbar { display: none; }
+    .cat-chip {
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .cat-chip.active {
+      background: #FF6B8B;
+      color: white;
+      border-color: #FF6B8B;
+      box-shadow: 0 3px 8px rgba(255, 107, 139, 0.3);
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+      gap: 10px;
+      overflow-y: auto;
+      max-height: 380px;
+      padding: 4px;
+    }
+    .gallery-item-card {
+      background: #FFFFFF;
+      border: 2.5px solid #E2E8F0;
+      border-radius: 18px;
+      padding: 10px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+    }
+    .gallery-item-card:active {
+      transform: scale(0.94);
+    }
+    .gallery-item-svg {
+      width: 44px;
+      height: 44px;
+    }
+    .gallery-item-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Modal for Collection Inspection */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.show {
+      display: flex;
+    }
+    .modal-content-card {
+      background: #FFFFFF;
+      border: 4px solid #FFE082;
+      border-radius: 28px;
+      width: 100%;
+      max-width: 340px;
+      padding: 22px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes modalPop {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .modal-big-svg {
+      width: 100px;
+      height: 100px;
+      margin: 10px auto 14px;
+    }
+
+    /* Footer */
+    .app-footer {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #4A6572;
+      padding: 6px;
+      margin-top: auto;
+      opacity: 0.85;
+    }
+
+    /* Responsive Mobile Tweaks */
+    @media (max-width: 480px) {
+      #app-container { padding: 6px 8px 14px; }
+      .game-card-panel { padding: 14px 10px; border-radius: 24px; }
+      .brand-title { font-size: 1.05rem; }
+      .baskets-container { grid-template-columns: 1fr 1fr; }
+      .chibi-object-item { width: 68px; height: 68px; }
+      .obj-svg-wrapper { width: 42px; height: 42px; }
+      .mascot-avatar { width: 42px; height: 42px; }
+      .mascot-speech { font-size: 0.88rem; }
+      .mode-selection-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND: CHIBI RAINBOW SORTING GARDEN -->
+  <div class="garden-bg" aria-hidden="true">
+    <!-- Chibi Sun -->
+    <svg class="sun-chibi" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="32" fill="#FFD166" />
+      <g fill="#FFA726">
+        <polygon points="50,6 55,18 45,18" />
+        <polygon points="50,94 55,82 45,82" />
+        <polygon points="6,50 18,55 18,45" />
+        <polygon points="94,50 82,55 82,45" />
+        <polygon points="18,18 30,25 24,31" />
+        <polygon points="82,82 70,75 76,69" />
+        <polygon points="82,18 70,25 76,31" />
+        <polygon points="18,82 30,75 24,69" />
+      </g>
+      <!-- Chibi Face -->
+      <circle cx="42" cy="46" r="3.5" fill="#5D4037" />
+      <circle cx="58" cy="46" r="3.5" fill="#5D4037" />
+      <path d="M 45 53 Q 50 58 55 53" stroke="#5D4037" stroke-width="2.5" fill="none" stroke-linecap="round" />
+      <circle cx="37" cy="51" r="3" fill="#FF8A80" />
+      <circle cx="63" cy="51" r="3" fill="#FF8A80" />
+    </svg>
+
+    <!-- Rainbow -->
+    <svg class="rainbow-arc" viewBox="0 0 600 240">
+      <path d="M 30,240 A 270,270 0 0,1 570,240" stroke="#FF7675" stroke-width="14" fill="none" opacity="0.8" />
+      <path d="M 44,240 A 256,256 0 0,1 556,240" stroke="#FFA94D" stroke-width="14" fill="none" opacity="0.8" />
+      <path d="M 58,240 A 242,242 0 0,1 542,240" stroke="#FFE066" stroke-width="14" fill="none" opacity="0.8" />
+      <path d="M 72,240 A 228,228 0 0,1 528,240" stroke="#69DB7C" stroke-width="14" fill="none" opacity="0.8" />
+      <path d="M 86,240 A 214,214 0 0,1 514,240" stroke="#4DABF7" stroke-width="14" fill="none" opacity="0.8" />
+      <path d="M 100,240 A 200,200 0 0,1 500,240" stroke="#B197FC" stroke-width="14" fill="none" opacity="0.8" />
+    </svg>
+
+    <!-- Clouds -->
+    <svg class="cloud cloud-1" viewBox="0 0 100 60">
+      <path d="M 15 45 A 15 15 0 0 1 35 25 A 25 25 0 0 1 70 20 A 20 20 0 0 1 90 45 Z" />
+    </svg>
+    <svg class="cloud cloud-2" viewBox="0 0 100 60">
+      <path d="M 15 45 A 15 15 0 0 1 35 25 A 25 25 0 0 1 70 20 A 20 20 0 0 1 90 45 Z" />
+    </svg>
+    <svg class="cloud cloud-3" viewBox="0 0 100 60">
+      <path d="M 15 45 A 15 15 0 0 1 35 25 A 25 25 0 0 1 70 20 A 20 20 0 0 1 90 45 Z" />
+    </svg>
+
+    <!-- Bunting Flag Banner -->
+    <svg class="bunting-rope" viewBox="0 0 800 50" preserveAspectRatio="none">
+      <path d="M 0 5 Q 200 25 400 5 Q 600 25 800 5" stroke="#FFF" stroke-width="2" fill="none" stroke-dasharray="4,4" />
+      <polygon points="50,8 70,8 60,32" fill="#FF6B8B" />
+      <polygon points="120,14 140,14 130,38" fill="#FFD166" />
+      <polygon points="190,17 210,17 200,41" fill="#4ECDC4" />
+      <polygon points="260,16 280,16 270,40" fill="#A575F8" />
+      <polygon points="330,12 350,12 340,36" fill="#FF9F1C" />
+      <polygon points="450,12 470,12 460,36" fill="#FF6B8B" />
+      <polygon points="520,16 540,16 530,40" fill="#4ECDC4" />
+      <polygon points="590,17 610,17 600,41" fill="#FFD166" />
+      <polygon points="660,14 680,14 670,38" fill="#A575F8" />
+      <polygon points="730,8 750,8 740,32" fill="#06D6A0" />
+    </svg>
+
+    <!-- Floating Balloon -->
+    <div class="balloon-chibi" style="left: 6%; top: 38%;">
+      <svg width="42" height="56" viewBox="0 0 40 54">
+        <ellipse cx="20" cy="20" rx="18" ry="20" fill="#FF7675" />
+        <ellipse cx="14" cy="14" rx="4" ry="7" fill="rgba(255,255,255,0.4)" />
+        <polygon points="18,40 22,40 20,43" fill="#D63031" />
+        <path d="M 20 43 Q 16 48 22 53" stroke="#9E9E9E" stroke-width="1.5" fill="none" />
+      </svg>
+    </div>
+
+    <!-- Swaying Garden Hills -->
+    <svg class="garden-hills" viewBox="0 0 1000 200" preserveAspectRatio="none">
+      <path d="M 0 110 Q 250 50 500 100 T 1000 80 L 1000 200 L 0 200 Z" fill="#9AE684" />
+      <path d="M 0 140 Q 300 90 650 140 T 1000 120 L 1000 200 L 0 200 Z" fill="#69DB7C" />
+    </svg>
+
+    <!-- Flowers -->
+    <div class="flower-sway" style="left: 12%;">
+      <svg width="28" height="36" viewBox="0 0 30 40">
+        <path d="M 15 40 Q 14 28 15 16" stroke="#2B8A3E" stroke-width="3" fill="none" />
+        <circle cx="15" cy="15" r="7" fill="#FFD166" />
+        <circle cx="9" cy="15" r="5" fill="#FF6B8B" />
+        <circle cx="21" cy="15" r="5" fill="#FF6B8B" />
+        <circle cx="15" cy="9" r="5" fill="#FF6B8B" />
+        <circle cx="15" cy="21" r="5" fill="#FF6B8B" />
+      </svg>
+    </div>
+    <div class="flower-sway" style="right: 14%; animation-delay: -1.6s;">
+      <svg width="28" height="36" viewBox="0 0 30 40">
+        <path d="M 15 40 Q 16 28 15 16" stroke="#2B8A3E" stroke-width="3" fill="none" />
+        <circle cx="15" cy="15" r="7" fill="#FFF" />
+        <circle cx="9" cy="15" r="5" fill="#74B9FF" />
+        <circle cx="21" cy="15" r="5" fill="#74B9FF" />
+        <circle cx="15" cy="9" r="5" fill="#74B9FF" />
+        <circle cx="15" cy="21" r="5" fill="#74B9FF" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <main id="app-container">
+    
+    <!-- Top Header Navigation -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="app-logo-badge" id="logo-icon-holder"></div>
+        <div class="brand-title" id="lbl-app-title">Asingkan Warna</div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="pill-btn lang-toggle" id="btn-lang-toggle" onclick="toggleLanguage()">
+          <span class="svg-icon" id="icon-lang-holder"></span>
+          <span id="lbl-lang-indicator">BM</span>
+        </button>
+        <button type="button" class="pill-btn" id="btn-sound-toggle" onclick="toggleSound()">
+          <span class="svg-icon" id="sound-icon-holder"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Active Card Panel -->
+    <div class="game-card-panel">
+      
+      <!-- Chibi Companion Mascot Bar -->
+      <div class="mascot-companion" id="mascot-container">
+        <div class="mascot-avatar mascot-idle" id="mascot-face">
+          <!-- Mascot: Cici the Chibi Bunny -->
+          <svg viewBox="0 0 60 60" width="100%" height="100%">
+            <!-- Bunny Ears -->
+            <ellipse cx="22" cy="14" rx="6" ry="14" fill="#FFFFFF" stroke="#FFA726" stroke-width="2" />
+            <ellipse cx="22" cy="14" rx="3" ry="9" fill="#FF80AB" />
+            <ellipse cx="38" cy="14" rx="6" ry="14" fill="#FFFFFF" stroke="#FFA726" stroke-width="2" />
+            <ellipse cx="38" cy="14" rx="3" ry="9" fill="#FF80AB" />
+            <!-- Face -->
+            <circle cx="30" cy="36" r="20" fill="#FFFFFF" stroke="#FFA726" stroke-width="2.5" />
+            <!-- Eyes -->
+            <ellipse cx="23" cy="34" rx="2.5" ry="3.5" fill="#3E2723" id="mascot-left-eye" />
+            <ellipse cx="37" cy="34" rx="2.5" ry="3.5" fill="#3E2723" id="mascot-right-eye" />
+            <!-- Cheeks -->
+            <circle cx="18" cy="40" r="3.5" fill="#FF8A80" opacity="0.7" />
+            <circle cx="42" cy="40" r="3.5" fill="#FF8A80" opacity="0.7" />
+            <!-- Nose & Mouth -->
+            <polygon points="30,38 28,41 32,41" fill="#FF4081" />
+            <path d="M 27 42 Q 30 45 33 42" stroke="#3E2723" stroke-width="1.8" fill="none" stroke-linecap="round" id="mascot-mouth" />
+          </svg>
+        </div>
+        <div class="mascot-speech" id="mascot-speech-text">
+          Hai! Jom asingkan warna sama-sama!
+        </div>
+      </div>
+
+      <!-- ================= SCREEN: HOME MENU ================= -->
+      <section id="screen-home" class="screen active">
+        <div class="home-hero-wrap">
+          <h2 class="home-hero-title" id="txt-welcome-user">Selamat Datang!</h2>
+          <p class="home-hero-sub" id="txt-choose-activity">Pilih aktiviti anda hari ini:</p>
+        </div>
+
+        <!-- Cara Bermain / How to Play Guide Card -->
+        <div class="how-to-play-card">
+          <div class="how-to-play-header">
+            <span class="svg-icon" id="icon-htp-bulb" style="width: 20px; height: 20px;"></span>
+            <span id="txt-htp-title">Cara Bermain:</span>
+          </div>
+          <div class="steps-container">
+            <div class="step-tile">
+              <div class="step-badge">1</div>
+              <div class="step-art-preview" id="htp-step1-icon"></div>
+              <div class="step-title-text" id="txt-step1-title">Tekan Objek</div>
+              <div class="step-desc-text" id="txt-step1-sub">Pilih gambar comel</div>
+            </div>
+            <div class="step-tile">
+              <div class="step-badge">2</div>
+              <div class="step-art-preview" id="htp-step2-icon"></div>
+              <div class="step-title-text" id="txt-step2-title">Tekan Warna</div>
+              <div class="step-desc-text" id="txt-step2-sub">Pilih bakul sama</div>
+            </div>
+            <div class="step-tile">
+              <div class="step-badge">3</div>
+              <div class="step-art-preview" id="htp-step3-icon"></div>
+              <div class="step-title-text" id="txt-step3-title">Berjaya!</div>
+              <div class="step-desc-text" id="txt-step3-sub">Objek diasingkan</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="big-btn red-play" onclick="navigateTo('screen-mode-select')" style="margin-bottom: 14px;">
+          <span class="svg-icon" id="btn-icon-play" style="width: 26px; height: 26px;"></span>
+          <span id="lbl-play-sort-game">Asingkan Warna</span>
+        </button>
+
+        <div class="home-menu-grid">
+          <div class="menu-card-btn" onclick="openCollectionScreen()">
+            <div class="menu-icon-wrap" style="background: #E8F5E9;" id="card-icon-collection"></div>
+            <div>
+              <div class="menu-card-title" id="lbl-menu-collection">Koleksi Gambar</div>
+              <div class="menu-card-sub" id="lbl-menu-collection-sub">Lihat semua lukisan comel</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN: GAME MODE SELECTION ================= -->
+      <section id="screen-mode-select" class="screen">
+        <div style="text-align: center; margin-bottom: 8px;">
+          <h2 style="font-size: 1.45rem; color: #FF5252;" id="txt-select-mode-title">Pilih Bilangan Soalan</h2>
+          <p style="color: var(--text-soft); font-size: 0.88rem; font-weight:600;" id="txt-select-mode-subtitle">Berapa soalan yang ingin dimainkan?</p>
+        </div>
+
+        <div class="mode-selection-grid">
+          <div class="mode-tile" onclick="startGameWithMode(5)">
+            <div class="mode-badge" id="lbl-mode-5">5 Soalan</div>
+            <div class="mode-desc" id="lbl-mode-5-desc">Pantas & Ceria</div>
+          </div>
+          <div class="mode-tile" onclick="startGameWithMode(10)">
+            <div class="mode-badge" id="lbl-mode-10">10 Soalan</div>
+            <div class="mode-desc" id="lbl-mode-10-desc">Sederhana & Seronok</div>
+          </div>
+          <div class="mode-tile" onclick="startGameWithMode(20)">
+            <div class="mode-badge" id="lbl-mode-20">20 Soalan</div>
+            <div class="mode-desc" id="lbl-mode-20-desc">Penuh Cabaran</div>
+          </div>
+          <div class="mode-tile" onclick="startGameWithMode('free')">
+            <div class="mode-badge" id="lbl-mode-free">Main Bebas</div>
+            <div class="mode-desc" id="lbl-mode-free-desc">Main Tanpa Had</div>
+          </div>
+        </div>
+
+        <button type="button" class="pill-btn" onclick="navigateTo('screen-home')" style="margin: auto auto 0; align-self: center;">
+          <span class="svg-icon" id="icon-back-modes"></span>
+          <span id="lbl-back-home">Kembali</span>
+        </button>
+      </section>
+
+      <!-- ================= SCREEN: GAMEPLAY ================= -->
+      <section id="screen-game" class="screen">
+        
+        <!-- HUD Stats -->
+        <div class="gameplay-hud">
+          <div class="hud-chip">
+            <span id="lbl-hud-q">SOALAN</span>: <span class="hud-highlight" id="hud-question-counter">1 / 5</span>
+          </div>
+          <div class="hud-chip">
+            <span id="lbl-hud-sorted">DIASINGKAN</span>: <span class="hud-highlight" id="hud-sorted-counter">0 / 4</span>
+          </div>
+          <div class="hud-chip">
+            <span class="svg-icon" id="hud-star-icon" style="width: 20px; height: 20px;"></span>
+            <span class="hud-highlight" id="hud-score-counter">0</span>
+          </div>
+        </div>
+
+        <!-- Big Instruction Banner -->
+        <div class="instruction-bar" id="game-instruction-banner">
+          <span class="svg-icon" id="instruction-pointer-icon" style="width: 20px; height: 20px;"></span>
+          <span id="txt-game-instruction">Tekan objek, kemudian tekan warna yang betul.</span>
+        </div>
+
+        <!-- Unsorted Objects Section -->
+        <div class="stage-section-title">
+          <span class="svg-icon" id="stage-bear-icon"></span>
+          <span id="lbl-stage-unsorted">Objek Untuk Diasingkan:</span>
+        </div>
+        <div class="objects-playground" id="unsorted-objects-tray">
+          <!-- Dynamically populated objects -->
+        </div>
+
+        <!-- Target Colour Baskets Section -->
+        <div class="stage-section-title">
+          <span class="svg-icon" id="stage-basket-icon"></span>
+          <span id="lbl-stage-baskets">Bakul Warna:</span>
+        </div>
+        <div class="baskets-container" id="baskets-tray">
+          <!-- Dynamically populated colour baskets -->
+        </div>
+
+        <!-- Quick exit during gameplay -->
+        <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+          <button type="button" class="pill-btn" onclick="confirmQuitGame()">
+            <span class="svg-icon" id="icon-quit-game"></span>
+            <span id="lbl-quit-game">Keluar</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN: RESULTS ================= -->
+      <section id="screen-result" class="screen">
+        <div class="result-box">
+          <div class="celebration-burst" id="result-celebrate-holder"></div>
+          <h2 class="result-title" id="txt-result-congrats">Tahniah! Hebatnya!</h2>
+          <p style="color: var(--text-soft); font-weight: 600;" id="txt-result-message">Anda telah berjaya mengasingkan semua warna!</p>
+
+          <div class="result-stats-row">
+            <div class="stat-pill">
+              <div class="stat-pill-val" id="res-final-score">50</div>
+              <div class="stat-pill-lbl" id="lbl-res-score">Jumlah Skor</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-val" id="res-total-sorted">10</div>
+              <div class="stat-pill-lbl" id="lbl-res-sorted">Objek Diasingkan</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-val" id="res-total-questions">5</div>
+              <div class="stat-pill-lbl" id="lbl-res-questions">Soalan Selesai</div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto;">
+            <button type="button" class="big-btn green-start" onclick="replayGame()">
+              <span class="svg-icon" id="icon-replay-btn" style="width: 22px; height: 22px;"></span>
+              <span id="lbl-btn-play-again">Main Lagi</span>
+            </button>
+            <button type="button" class="big-btn blue-nav" onclick="navigateTo('screen-home')">
+              <span class="svg-icon" id="icon-home-btn" style="width: 22px; height: 22px;"></span>
+              <span id="lbl-btn-home-result">Menu Utama</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN: PICTURE COLLECTION ================= -->
+      <section id="screen-collection" class="screen">
+        <div class="collection-header-row">
+          <h2 style="font-size: 1.35rem; color: #FF5252;" id="txt-collection-title">Koleksi Gambar</h2>
+          <button type="button" class="pill-btn" onclick="navigateTo('screen-home')">
+            <span class="svg-icon" id="icon-coll-back"></span>
+            <span id="lbl-coll-back">Kembali</span>
+          </button>
+        </div>
+        
+        <!-- Category Filter Pills -->
+        <div class="category-filter-chips" id="collection-categories-bar"></div>
+
+        <!-- Artwork Grid -->
+        <div class="gallery-grid" id="collection-grid"></div>
+      </section>
+
+    </div>
+
+    <!-- Persistent Subtle Footer -->
+    <footer class="app-footer">
+      Kinder Klub | All Rights Reserved
+    </footer>
+  </main>
+
+  <!-- GENTLE TOAST NOTICE -->
+  <div class="toast-notice" id="toast-message">
+    <span class="toast-svg" id="toast-icon"></span>
+    <span id="toast-text">Cuba lagi!</span>
+  </div>
+
+  <!-- MODAL: COLLECTION ARTWORK INSPECTION -->
+  <div class="modal-backdrop" id="artwork-modal" onclick="closeArtworkModal(event)">
+    <div class="modal-content-card" onclick="event.stopPropagation()">
+      <div class="modal-big-svg" id="modal-svg-holder"></div>
+      <h3 style="font-size: 1.35rem; color: var(--text-dark); margin-bottom: 4px;" id="modal-art-name">Epal / Apple</h3>
+      <div style="font-size: 0.95rem; font-weight:700; color: #FF5252; margin-bottom: 6px;" id="modal-art-colour">Warna: Merah</div>
+      <div style="font-size: 0.85rem; font-weight:600; color: #78909C; margin-bottom: 16px;" id="modal-art-category">Kategori: Buah</div>
+      <button type="button" class="pill-btn primary" onclick="closeArtworkModal()">
+        <span id="lbl-modal-close">Tutup</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT ================= -->
+  <script>
+    /* ==========================================================================
+       1. CUTE VECTOR ICONS LIBRARY (NO EMOJIS)
+       ========================================================================== */
+    const CUTE_ICONS = {
+      palette: `<svg viewBox="0 0 32 32" width="100%" height="100%"><path d="M16 3C8.82 3 3 8.82 3 16c0 5.52 3.48 9.5 8 9.5 1.5 0 2.5-1 2.5-2.2 0-.6-.3-1.1-.6-1.6-.3-.5-.6-1-.6-1.7 0-1.2 1-2 2.2-2H18c6.63 0 11-4.37 11-10C29 7.48 23.18 3 16 3z" fill="#FFF"/><circle cx="9" cy="11" r="2.2" fill="#FF4757"/><circle cx="15" cy="8" r="2.2" fill="#FF9F1A"/><circle cx="21" cy="10" r="2.2" fill="#2ED573"/><circle cx="24" cy="16" r="2.2" fill="#2E86DE"/><circle cx="18" cy="19" r="2" fill="#8854D0"/></svg>`,
+      
+      globe: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"></circle><line x1="2.5" y1="12" x2="21.5" y2="12"></line><path d="M12 2.5a14.5 14.5 0 0 1 4 9.5 14.5 14.5 0 0 1-4 9.5 14.5 14.5 0 0 1-4-9.5 14.5 14.5 0 0 1 4-9.5z"></path></svg>`,
+      
+      soundOn: `<svg viewBox="0 0 24 24" fill="none" stroke="#FF5E7E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#FF5E7E"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>`,
+      
+      soundOff: `<svg viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#9E9E9E"></polygon><line x1="22" y1="9" x2="16" y2="15"></line><line x1="16" y1="9" x2="22" y2="15"></line></svg>`,
+      
+      gamepad: `<svg viewBox="0 0 32 32" width="100%" height="100%"><path d="M25 8H7C4.24 8 2 10.24 2 13v6c0 2.76 2.24 5 5 5h18c2.76 0 5-2.24 5-5v-6c0-2.76-2.24-5-5-5z" fill="#FFF" stroke="#FF5252" stroke-width="2.5"/><path d="M8 16h6M11 13v6" stroke="#FF5252" stroke-width="3" stroke-linecap="round"/><circle cx="21" cy="18" r="1.8" fill="#FF5252"/><circle cx="25" cy="14" r="1.8" fill="#FF5252"/></svg>`,
+      
+      gallery: `<svg viewBox="0 0 32 32" width="100%" height="100%"><rect x="3" y="4" width="26" height="22" rx="4" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2.5"/><circle cx="10" cy="11" r="2.5" fill="#FFD166"/><path d="M5 23l7-8 6 6 4-4 7 6" stroke="#2E7D32" stroke-width="2.5" fill="none" stroke-linejoin="round"/></svg>`,
+      
+      arrowBack: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`,
+      
+      home: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="currentColor"></path></svg>`,
+      
+      replay: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>`,
+      
+      star: `<svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="#FFD166" stroke="#FFA000" stroke-width="2" stroke-linejoin="round"/></svg>`,
+      
+      pointerDown: `<svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2v14M6 10l6 6 6-6" fill="none" stroke="#FF5252" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      
+      pointerHand: `<svg viewBox="0 0 24 24" fill="none" stroke="#FF7043" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"></path><path d="M14 10V4a2 2 0 0 0-4 0v8"></path><path d="M10 10.5V6a2 2 0 0 0-4 0v8"></path><path d="M10 14l-3-3a2 2 0 0 0-2.8 2.8L8 18c2 2 4 4 8 4h3a5 5 0 0 0 5-5v-5a2 2 0 0 0-4 0v2"></path></svg>`,
+      
+      bear: `<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3.5" fill="#D29054" stroke="#8B572A" stroke-width="1.5"/><circle cx="18" cy="6" r="3.5" fill="#D29054" stroke="#8B572A" stroke-width="1.5"/><circle cx="12" cy="13" r="7.5" fill="#D29054" stroke="#8B572A" stroke-width="1.8"/><circle cx="9.5" cy="11.5" r="1" fill="#333"/><circle cx="14.5" cy="11.5" r="1" fill="#333"/><ellipse cx="12" cy="14.5" rx="3" ry="2" fill="#FFF"/><circle cx="12" cy="14" r="1" fill="#333"/></svg>`,
+      
+      basket: `<svg viewBox="0 0 24 24"><path d="M4 10h16l-2 10H6L4 10z" fill="#FFEAA7" stroke="#FFA726" stroke-width="2" stroke-linejoin="round"/><path d="M8 10V6a4 4 0 0 1 8 0v4" fill="none" stroke="#FFA726" stroke-width="2.5" stroke-linecap="round"/><line x1="8" y1="14" x2="16" y2="14" stroke="#FFA726" stroke-width="1.5"/><line x1="9" y1="17" x2="15" y2="17" stroke="#FFA726" stroke-width="1.5"/></svg>`,
+      
+      checkMini: `<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="#00B894"/><path d="M5 8.5L7 10.5L11 6" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      
+      sparkle: `<svg viewBox="0 0 24 24"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="#FFD166" stroke="#FFA000" stroke-width="1.5"/></svg>`,
+      
+      bulb: `<svg viewBox="0 0 24 24" fill="none" stroke="#FF9F1C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z" fill="#FFF3CD"></path></svg>`,
+      
+      celebrate: `<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#FFF" stroke="#FF5252" stroke-width="3"/><path d="M30 12l3.5 8.5 9 1-6.5 6 2 9-8-4.5-8 4.5 2-9-6.5-6 9-1z" fill="#FFD166" stroke="#FFA000" stroke-width="1.5"/><circle cx="16" cy="18" r="3" fill="#4ECDC4"/><circle cx="44" cy="18" r="3" fill="#FF5E7E"/><circle cx="46" cy="42" r="3" fill="#A575F8"/><circle cx="14" cy="42" r="3" fill="#06D6A0"/></svg>`
+    };
+
+    /* How to Play Step Demonstration SVGs */
+    const HTP_STEP_SVGS = {
+      step1: `<svg viewBox="0 0 50 50">
+        <!-- Cute mini apple -->
+        <path d="M25,12 C18,12 14,18 14,28 C14,38 20,42 25,42 C30,42 36,38 36,28 C36,18 32,12 25,12 Z" fill="#FF4757" stroke="#2D3142" stroke-width="2"/>
+        <path d="M25,12 Q27,7 29,5" stroke="#8B572A" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="21" cy="24" rx="1.8" ry="2.5" fill="#2D3142"/>
+        <ellipse cx="29" cy="24" rx="1.8" ry="2.5" fill="#2D3142"/>
+        <circle cx="18" cy="27" r="2" fill="#FF8A80"/>
+        <circle cx="32" cy="27" r="2" fill="#FF8A80"/>
+        <!-- Hand tapping -->
+        <g transform="translate(18, 12)">
+          <path d="M12 20 L8 12 C7 10 9 8 11 10 L14 13 L14 4 C14 2 17 2 17 4 L17 14 L19 14 C21 14 21 16 21 17 L20 22 Z" fill="#FFF" stroke="#FF5252" stroke-width="1.8" stroke-linejoin="round"/>
+        </g>
+      </svg>`,
+      step2: `<svg viewBox="0 0 50 50">
+        <!-- Cute mini red basket -->
+        <path d="M8,22 H42 L38,44 H12 Z" fill="#FFEAEB" stroke="#FF4757" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M16,22 V14 Q25,8 34,14 V22" fill="none" stroke="#FF4757" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="25" cy="33" r="6" fill="#FF4757"/>
+        <!-- Hand tapping basket -->
+        <g transform="translate(20, 10)">
+          <path d="M12 20 L8 12 C7 10 9 8 11 10 L14 13 L14 4 C14 2 17 2 17 4 L17 14 L19 14 C21 14 21 16 21 17 L20 22 Z" fill="#FFF" stroke="#FF5252" stroke-width="1.8" stroke-linejoin="round"/>
+        </g>
+      </svg>`,
+      step3: `<svg viewBox="0 0 50 50">
+        <!-- Basket with sorted apple inside happily -->
+        <path d="M8,26 H42 L38,46 H12 Z" fill="#FFEAEB" stroke="#FF4757" stroke-width="2" stroke-linejoin="round"/>
+        <!-- Apple nestled -->
+        <circle cx="25" cy="25" r="11" fill="#FF4757" stroke="#2D3142" stroke-width="1.8"/>
+        <circle cx="21" cy="24" r="1.5" fill="#2D3142"/>
+        <circle cx="29" cy="24" r="1.5" fill="#2D3142"/>
+        <path d="M23 27 Q25 29 27 27" stroke="#2D3142" stroke-width="1.5" fill="none"/>
+        <circle cx="18" cy="26" r="1.8" fill="#FF8A80"/>
+        <circle cx="32" cy="26" r="1.8" fill="#FF8A80"/>
+        <!-- Green check badge & sparkles -->
+        <circle cx="38" cy="14" r="7" fill="#00B894"/>
+        <path d="M35 14 L37 16 L41 12" stroke="#FFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <polygon points="12,12 14,16 18,17 14,19 13,23 10,20 6,21 8,17 7,13 11,15" fill="#FFD166" transform="scale(0.5) translate(8, 10)"/>
+      </svg>`
+    };
+
+    /* ==========================================================================
+       2. COLOUR DATABASE
+       ========================================================================== */
+    const COLOUR_DATABASE = {
+      red: { id: "red", nameBM: "MERAH", nameEN: "RED", basketLabelBM: "BAKUL MERAH", basketLabelEN: "RED BASKET", hex: "#FF4757", lightHex: "#FFEAEB" },
+      blue: { id: "blue", nameBM: "BIRU", nameEN: "BLUE", basketLabelBM: "BAKUL BIRU", basketLabelEN: "BLUE BASKET", hex: "#2E86DE", lightHex: "#EBF3FC" },
+      yellow: { id: "yellow", nameBM: "KUNING", nameEN: "YELLOW", basketLabelBM: "BAKUL KUNING", basketLabelEN: "YELLOW BASKET", hex: "#FF9F1A", lightHex: "#FFF7E6" },
+      green: { id: "green", nameBM: "HIJAU", nameEN: "GREEN", basketLabelBM: "BAKUL HIJAU", basketLabelEN: "GREEN BASKET", hex: "#2ED573", lightHex: "#EBFBF1" },
+      orange: { id: "orange", nameBM: "JINGGA", nameEN: "ORANGE", basketLabelBM: "BAKUL JINGGA", basketLabelEN: "ORANGE BASKET", hex: "#FF7F50", lightHex: "#FFF1EC" },
+      purple: { id: "purple", nameBM: "UNGU", nameEN: "PURPLE", basketLabelBM: "BAKUL UNGU", basketLabelEN: "PURPLE BASKET", hex: "#8854D0", lightHex: "#F3EEFB" },
+      pink: { id: "pink", nameBM: "MERAH JAMBU", nameEN: "PINK", basketLabelBM: "BAKUL MERAH JAMBU", basketLabelEN: "PINK BASKET", hex: "#FF78AE", lightHex: "#FFF0F6" },
+      brown: { id: "brown", nameBM: "COKLAT", nameEN: "BROWN", basketLabelBM: "BAKUL COKLAT", basketLabelEN: "BROWN BASKET", hex: "#8B572A", lightHex: "#F7F1EB" },
+      black: { id: "black", nameBM: "HITAM", nameEN: "BLACK", basketLabelBM: "BAKUL HITAM", basketLabelEN: "BLACK BASKET", hex: "#2F3542", lightHex: "#F1F2F6" },
+      white: { id: "white", nameBM: "PUTIH", nameEN: "WHITE", basketLabelBM: "BAKUL PUTIH", basketLabelEN: "WHITE BASKET", hex: "#FFFFFF", lightHex: "#F8FAFC" }
+    };
+
+    /* ==========================================================================
+       3. VECTOR SVG ARTWORK GENERATOR (CUTE CHIBI PRESCHOOL EDITION)
+       ========================================================================== */
+    function getArtworkSvg(artworkId) {
+      switch (artworkId) {
+        // Red: Epal / Apple (Chibi with cute shine, sparkles, blush & cat smile)
+        case "apple_red":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Apple Body -->
+            <path d="M30,13 C21,13 14,20 14,34 C14,46 22,53 30,53 C38,53 46,46 46,34 C46,20 39,13 30,13 Z" fill="#FF4757" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Cute highlight arc -->
+            <path d="M19,20 Q16,28 17,35" stroke="rgba(255,255,255,0.6)" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <circle cx="18" cy="18" r="1.8" fill="#FFF"/>
+            <!-- Stalk & Leaf -->
+            <path d="M30,13 Q32,6 36,4" stroke="#8B572A" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+            <path d="M32,10 Q42,8 44,13 Q36,16 32,10" fill="#2ED573" stroke="#2D3142" stroke-width="2"/>
+            <!-- Big Chibi Sparkling Eyes -->
+            <ellipse cx="23" cy="33" rx="3.2" ry="4.2" fill="#2D3142"/>
+            <circle cx="22" cy="31.5" r="1.5" fill="#FFF"/>
+            <circle cx="24.2" cy="34.5" r="0.8" fill="#FFF"/>
+            <ellipse cx="37" cy="33" rx="3.2" ry="4.2" fill="#2D3142"/>
+            <circle cx="36" cy="31.5" r="1.5" fill="#FFF"/>
+            <circle cx="38.2" cy="34.5" r="0.8" fill="#FFF"/>
+            <!-- Rosy Cheeks -->
+            <ellipse cx="17.5" cy="38" rx="3.5" ry="2.2" fill="#FF80AB" opacity="0.85"/>
+            <ellipse cx="42.5" cy="38" rx="3.5" ry="2.2" fill="#FF80AB" opacity="0.85"/>
+            <!-- Cute Cat Smile -->
+            <path d="M27,37 Q30,41 33,37" stroke="#2D3142" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>`;
+
+        // Red: Strawberi / Strawberry (Chubby, green leaf hat, sweet seeds & smile)
+        case "strawberry_red":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Strawberry Body -->
+            <path d="M30,17 C17,17 15,31 20,46 C24,53 30,56 30,56 C30,56 36,53 40,46 C45,31 43,17 30,17 Z" fill="#FF3838" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Leaf Calyx Hat -->
+            <path d="M18,17 Q30,8 42,17 Q35,23 30,19 Q25,23 18,17" fill="#2ED573" stroke="#2D3142" stroke-width="2"/>
+            <path d="M30,12 L30,6" stroke="#2ED573" stroke-width="3" stroke-linecap="round"/>
+            <!-- Yellow Seeds -->
+            <circle cx="20" cy="27" r="1.2" fill="#FFEAA7"/>
+            <circle cx="40" cy="27" r="1.2" fill="#FFEAA7"/>
+            <circle cx="23" cy="45" r="1.2" fill="#FFEAA7"/>
+            <circle cx="37" cy="45" r="1.2" fill="#FFEAA7"/>
+            <circle cx="30" cy="49" r="1.2" fill="#FFEAA7"/>
+            <!-- Chibi Face -->
+            <ellipse cx="25" cy="34" rx="2.8" ry="3.8" fill="#2D3142"/>
+            <circle cx="24" cy="32.5" r="1.3" fill="#FFF"/>
+            <ellipse cx="35" cy="34" rx="2.8" ry="3.8" fill="#2D3142"/>
+            <circle cx="34" cy="32.5" r="1.3" fill="#FFF"/>
+            <!-- Blush & Smile -->
+            <circle cx="19.5" cy="38" r="2.8" fill="#FF80AB" opacity="0.8"/>
+            <circle cx="40.5" cy="38" r="2.8" fill="#FF80AB" opacity="0.8"/>
+            <path d="M28,38 Q30,41 32,38" stroke="#2D3142" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>`;
+
+        // Red: Kereta / Car (Chibi rounded beetle car with cute windshield eyes & bumper smile)
+        case "car_red":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Bubble Car Body -->
+            <path d="M12,42 C10,38 12,28 18,24 C23,17 37,17 42,24 C48,28 50,38 48,42 Z" fill="#FF4757" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Windshield Window -->
+            <path d="M20,24 C23,20 37,20 40,24 L42,32 L18,32 Z" fill="#E0F7FA" stroke="#2D3142" stroke-width="2"/>
+            <!-- Windshield Big Chibi Eyes -->
+            <ellipse cx="26" cy="28" rx="2.5" ry="3.5" fill="#2D3142"/>
+            <circle cx="25" cy="27" r="1" fill="#FFF"/>
+            <ellipse cx="34" cy="28" rx="2.5" ry="3.5" fill="#2D3142"/>
+            <circle cx="33" cy="27" r="1" fill="#FFF"/>
+            <circle cx="21" cy="30" r="2" fill="#FF80AB" opacity="0.8"/>
+            <circle cx="39" cy="30" r="2" fill="#FF80AB" opacity="0.8"/>
+            <!-- Cheerful Grill Smile -->
+            <path d="M27,37 Q30,40 33,37" stroke="#2D3142" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <circle cx="14" cy="37" r="3" fill="#FFD166" stroke="#2D3142" stroke-width="1.5"/>
+            <circle cx="46" cy="37" r="3" fill="#FFD166" stroke="#2D3142" stroke-width="1.5"/>
+            <!-- Wheels -->
+            <circle cx="19" cy="46" r="6.5" fill="#2F3542" stroke="#2D3142" stroke-width="2"/>
+            <circle cx="19" cy="46" r="2.5" fill="#FFF"/>
+            <circle cx="41" cy="46" r="6.5" fill="#2F3542" stroke="#2D3142" stroke-width="2"/>
+            <circle cx="41" cy="46" r="2.5" fill="#FFF"/>
+          </svg>`;
+
+        // Yellow: Pisang / Banana (Chubby smiling curved banana with rosy cheeks)
+        case "banana_yellow":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Banana Body -->
+            <path d="M14,20 C25,16 45,24 45,47 C37,47 21,37 14,20 Z" fill="#FFD32A" stroke="#2D3142" stroke-width="2.5"/>
+            <path d="M14,20 L11,15" stroke="#8B572A" stroke-width="3" stroke-linecap="round"/>
+            <path d="M45,47 L47,51" stroke="#8B572A" stroke-width="3" stroke-linecap="round"/>
+            <!-- Highlight -->
+            <path d="M19,23 Q32,24 40,42" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- Chibi Face -->
+            <ellipse cx="27" cy="31" rx="2.8" ry="3.6" fill="#2D3142"/>
+            <circle cx="26" cy="29.5" r="1.2" fill="#FFF"/>
+            <ellipse cx="36" cy="36" rx="2.8" ry="3.6" fill="#2D3142"/>
+            <circle cx="35" cy="34.5" r="1.2" fill="#FFF"/>
+            <!-- Rosy Cheeks & Smile -->
+            <circle cx="23" cy="35" r="2.5" fill="#FF80AB" opacity="0.8"/>
+            <circle cx="39" cy="41" r="2.5" fill="#FF80AB" opacity="0.8"/>
+            <path d="M29,36 Q32,39 34,36" stroke="#2D3142" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>`;
+
+        // Yellow: Matahari / Sun (Ultra kawaii smiling sun with rounded rays & wink/shine)
+        case "sun_yellow":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Rounded rays -->
+            <g fill="#FFA726">
+              <ellipse cx="30" cy="7" rx="3.5" ry="6"/>
+              <ellipse cx="30" cy="53" rx="3.5" ry="6"/>
+              <ellipse cx="7" cy="30" rx="6" ry="3.5"/>
+              <ellipse cx="53" cy="30" rx="6" ry="3.5"/>
+              <ellipse cx="14" cy="14" rx="4" ry="5.5" transform="rotate(-45 14 14)"/>
+              <ellipse cx="46" cy="46" rx="4" ry="5.5" transform="rotate(-45 46 46)"/>
+              <ellipse cx="46" cy="14" rx="4" ry="5.5" transform="rotate(45 46 14)"/>
+              <ellipse cx="14" cy="46" rx="4" ry="5.5" transform="rotate(45 14 46)"/>
+            </g>
+            <!-- Center Round Sun -->
+            <circle cx="30" cy="30" r="18" fill="#FFD32A" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Eyes -->
+            <ellipse cx="24" cy="28" rx="2.8" ry="3.8" fill="#2D3142"/>
+            <circle cx="23" cy="26.5" r="1.2" fill="#FFF"/>
+            <ellipse cx="36" cy="28" rx="2.8" ry="3.8" fill="#2D3142"/>
+            <circle cx="35" cy="26.5" r="1.2" fill="#FFF"/>
+            <!-- Big Rosy Blush -->
+            <circle cx="18" cy="33" r="3" fill="#FF7675" opacity="0.85"/>
+            <circle cx="42" cy="33" r="3" fill="#FF7675" opacity="0.85"/>
+            <!-- Happy Open Smile with Tongue -->
+            <path d="M26,33 Q30,38 34,33" stroke="#2D3142" stroke-width="2" fill="#FF5252" stroke-linecap="round"/>
+          </svg>`;
+
+        // Yellow: Anak Ayam / Chick (Ultra fluffy round chick with wings & tiny tuft)
+        case "chick_yellow":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Chick Round Body -->
+            <ellipse cx="30" cy="35" rx="18" ry="17" fill="#FFD32A" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Little Head Tuft -->
+            <path d="M27,18 Q30,10 33,18" stroke="#FFA726" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="30" cy="13" r="2.5" fill="#FFD32A"/>
+            <!-- Little Flapping Wings -->
+            <path d="M12,34 Q8,37 13,42" fill="#FFA726" stroke="#2D3142" stroke-width="2"/>
+            <path d="M48,34 Q52,37 47,42" fill="#FFA726" stroke="#2D3142" stroke-width="2"/>
+            <!-- Big Chibi Sparkling Eyes -->
+            <ellipse cx="23" cy="31" rx="3.2" ry="4.2" fill="#2D3142"/>
+            <circle cx="22" cy="29.5" r="1.4" fill="#FFF"/>
+            <circle cx="24" cy="32.5" r="0.7" fill="#FFF"/>
+            <ellipse cx="37" cy="31" rx="3.2" ry="4.2" fill="#2D3142"/>
+            <circle cx="36" cy="29.5" r="1.4" fill="#FFF"/>
+            <circle cx="38" cy="32.5" r="0.7" fill="#FFF"/>
+            <!-- Tiny Orange Beak -->
+            <polygon points="30,32 27,36 33,36" fill="#FF5E57" stroke="#2D3142" stroke-width="1.5"/>
+            <!-- Blush & Tiny Feet -->
+            <ellipse cx="18" cy="36" rx="2.8" ry="1.8" fill="#FF80AB" opacity="0.8"/>
+            <ellipse cx="42" cy="36" rx="2.8" ry="1.8" fill="#FF80AB" opacity="0.8"/>
+            <path d="M25,52 L25,56 M35,52 L35,56" stroke="#FFA726" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>`;
+
+        // Blue: Ikan / Fish (Chubby blueberry fish blowing cute bubbles)
+        case "fish_blue":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Bubble Fish Body -->
+            <ellipse cx="28" cy="32" rx="18" ry="15" fill="#2E86DE" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Wavy Tail Fin -->
+            <path d="M44,32 C50,22 54,20 52,32 C54,44 50,42 44,32 Z" fill="#54A0FF" stroke="#2D3142" stroke-width="2"/>
+            <!-- Dorsal & Belly Fins -->
+            <path d="M26,17 Q32,10 36,18" fill="#54A0FF" stroke="#2D3142" stroke-width="2"/>
+            <path d="M26,47 Q30,52 34,46" fill="#54A0FF" stroke="#2D3142" stroke-width="2"/>
+            <!-- Soft Belly Wave -->
+            <path d="M16,36 Q26,44 38,36" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/>
+            <!-- Big Chibi Sparkling Eye -->
+            <ellipse cx="21" cy="29" rx="3.5" ry="4.5" fill="#2D3142"/>
+            <circle cx="20" cy="27.5" r="1.6" fill="#FFF"/>
+            <circle cx="22.2" cy="30.5" r="0.8" fill="#FFF"/>
+            <!-- Pink Cheek & Kissy Smile -->
+            <ellipse cx="17" cy="35" rx="3" ry="1.8" fill="#FF80AB" opacity="0.85"/>
+            <path d="M10,31 Q8,32 10,33" stroke="#2D3142" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- Cute Bubbles -->
+            <circle cx="7" cy="24" r="2.5" fill="#BEE3F8" stroke="#2E86DE" stroke-width="1.2"/>
+            <circle cx="4" cy="18" r="1.5" fill="#BEE3F8" stroke="#2E86DE" stroke-width="1"/>
+          </svg>`;
+
+        // Blue: Lumba-lumba / Dolphin (Leaping chibi baby dolphin with sweet smile & water splash)
+        case "dolphin_blue":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Curved Leaping Body -->
+            <path d="M10,36 C13,20 28,14 42,20 C48,24 50,30 46,38 C38,44 26,42 16,40 Z" fill="#2E86DE" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Belly highlight -->
+            <path d="M16,38 C24,41 34,40 40,35 C32,32 20,32 16,38 Z" fill="#EBF3FC"/>
+            <!-- Snub Beak -->
+            <path d="M10,36 Q6,35 10,33" stroke="#2D3142" stroke-width="2.5" fill="#2E86DE"/>
+            <!-- Dorsal Fin & Tail -->
+            <path d="M28,15 Q33,7 36,17" fill="#54A0FF" stroke="#2D3142" stroke-width="2"/>
+            <path d="M44,34 Q52,32 54,39 Q48,42 45,39" fill="#54A0FF" stroke="#2D3142" stroke-width="2"/>
+            <path d="M22,34 Q24,42 28,36" fill="#54A0FF" stroke="#2D3142" stroke-width="2"/>
+            <!-- Cute Chibi Eye with Twinkle -->
+            <ellipse cx="18" cy="28" rx="2.8" ry="3.6" fill="#2D3142"/>
+            <circle cx="17.2" cy="26.8" r="1.3" fill="#FFF"/>
+            <ellipse cx="14" cy="33" rx="2.5" ry="1.6" fill="#FF80AB" opacity="0.8"/>
+            <!-- Water Drops -->
+            <circle cx="8" cy="18" r="1.8" fill="#74B9FF"/>
+            <circle cx="48" cy="16" r="1.5" fill="#74B9FF"/>
+          </svg>`;
+
+        // Blue: Belon / Balloon (Shiny kawaii round balloon with cute face & curly string)
+        case "balloon_blue":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Balloon Oval -->
+            <ellipse cx="30" cy="25" rx="17" ry="19" fill="#2E86DE" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- High Gloss Reflection -->
+            <ellipse cx="23" cy="18" rx="4" ry="7" fill="rgba(255,255,255,0.45)"/>
+            <circle cx="21" cy="13" r="1.5" fill="#FFF"/>
+            <!-- Chibi Face On Balloon -->
+            <ellipse cx="25" cy="27" rx="2.5" ry="3.5" fill="#2D3142"/>
+            <circle cx="24" cy="25.5" r="1.2" fill="#FFF"/>
+            <ellipse cx="35" cy="27" rx="2.5" ry="3.5" fill="#2D3142"/>
+            <circle cx="34" cy="25.5" r="1.2" fill="#FFF"/>
+            <circle cx="20" cy="30" r="2.2" fill="#FF80AB" opacity="0.8"/>
+            <circle cx="40" cy="30" r="2.2" fill="#FF80AB" opacity="0.8"/>
+            <path d="M28,31 Q30,34 32,31" stroke="#2D3142" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <!-- Knot & Curly String -->
+            <polygon points="28,44 32,44 30,47" fill="#1B4F72" stroke="#2D3142" stroke-width="1.5"/>
+            <path d="M30,47 Q25,52 32,54 Q36,56 31,58" stroke="#747D8C" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>`;
+
+        // Green: Katak / Frog (Chubby lime frog with big bulging chibi dome eyes & wide smile)
+        case "frog_green":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Big Dome Eye Bulges -->
+            <circle cx="19" cy="20" r="9" fill="#2ED573" stroke="#2D3142" stroke-width="2.5"/>
+            <circle cx="41" cy="20" r="9" fill="#2ED573" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Frog Chubby Body -->
+            <ellipse cx="30" cy="37" rx="19" ry="15" fill="#2ED573" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Belly Patch -->
+            <ellipse cx="30" cy="40" rx="11" ry="8" fill="#A8F5C4"/>
+            <!-- Sparkling Chibi Eyes -->
+            <circle cx="19" cy="20" r="5" fill="#FFF"/>
+            <ellipse cx="19" cy="20" rx="3.5" ry="4.5" fill="#2D3142"/>
+            <circle cx="18" cy="18" r="1.5" fill="#FFF"/>
+            <circle cx="20" cy="21.5" r="0.8" fill="#FFF"/>
+            <circle cx="41" cy="20" r="5" fill="#FFF"/>
+            <ellipse cx="41" cy="20" rx="3.5" ry="4.5" fill="#2D3142"/>
+            <circle cx="40" cy="18" r="1.5" fill="#FFF"/>
+            <circle cx="42" cy="21.5" r="0.8" fill="#FFF"/>
+            <!-- Wide Happy Frog Smile & Cheeks -->
+            <path d="M21,36 Q30,44 39,36" stroke="#2D3142" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="15" cy="35" r="3.2" fill="#FF80AB" opacity="0.85"/>
+            <circle cx="45" cy="35" r="3.2" fill="#FF80AB" opacity="0.85"/>
+            <!-- Webbed Feet -->
+            <ellipse cx="14" cy="49" rx="5" ry="2.5" fill="#2ED573" stroke="#2D3142" stroke-width="1.8"/>
+            <ellipse cx="46" cy="49" rx="5" ry="2.5" fill="#2ED573" stroke="#2D3142" stroke-width="1.8"/>
+          </svg>`;
+
+        // Green: Pokok / Tree (Fluffy cloud-like chibi tree with cute face & berries)
+        case "tree_green":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Chunky Trunk -->
+            <rect x="25" y="38" width="10" height="16" rx="3" fill="#8B572A" stroke="#2D3142" stroke-width="2.2"/>
+            <!-- Scalloped Cloud Canopy -->
+            <path d="M30,12 C23,12 18,17 18,22 C13,24 10,29 11,35 C12,41 18,43 23,43 H37 C42,43 48,41 49,35 C50,29 47,24 42,22 C42,17 37,12 30,12 Z" fill="#2ED573" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Canopy Highlights & Cute Red Berries -->
+            <circle cx="19" cy="24" r="2" fill="#FF4757"/>
+            <circle cx="41" cy="23" r="2" fill="#FF4757"/>
+            <circle cx="38" cy="36" r="2" fill="#FF4757"/>
+            <!-- Cute Face on Tree -->
+            <ellipse cx="26" cy="30" rx="2.5" ry="3.5" fill="#2D3142"/>
+            <circle cx="25" cy="28.5" r="1.2" fill="#FFF"/>
+            <ellipse cx="34" cy="30" rx="2.5" ry="3.5" fill="#2D3142"/>
+            <circle cx="33" cy="28.5" r="1.2" fill="#FFF"/>
+            <circle cx="21" cy="33" r="2.2" fill="#FF80AB" opacity="0.8"/>
+            <circle cx="39" cy="33" r="2.2" fill="#FF80AB" opacity="0.8"/>
+            <path d="M28,33 Q30,36 32,33" stroke="#2D3142" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          </svg>`;
+
+        // Orange: Lobak / Carrot (Chubby tapered carrot with leafy hairstyle & chibi smile)
+        case "carrot_orange":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Green Leaf Hairstyle Top -->
+            <path d="M26,18 Q20,8 15,7" stroke="#2ED573" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M30,18 Q30,6 30,4" stroke="#2ED573" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M34,18 Q40,8 45,7" stroke="#2ED573" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <!-- Chubby Cone Body -->
+            <path d="M19,18 C19,18 16,36 26,52 C28,55 32,55 34,52 C44,36 41,18 41,18 Z" fill="#FF7F50" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Texture Lines -->
+            <path d="M20,24 H26 M34,28 H40 M22,40 H28" stroke="#E55039" stroke-width="2" stroke-linecap="round"/>
+            <!-- Chibi Face -->
+            <ellipse cx="26" cy="30" rx="2.5" ry="3.5" fill="#2D3142"/>
+            <circle cx="25" cy="28.5" r="1.2" fill="#FFF"/>
+            <ellipse cx="34" cy="30" rx="2.5" ry="3.5" fill="#2D3142"/>
+            <circle cx="33" cy="28.5" r="1.2" fill="#FFF"/>
+            <circle cx="21" cy="33" r="2.2" fill="#FF80AB" opacity="0.85"/>
+            <circle cx="39" cy="33" r="2.2" fill="#FF80AB" opacity="0.85"/>
+            <path d="M28,34 Q30,37 32,34" stroke="#2D3142" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          </svg>`;
+
+        // Purple: Anggur / Grapes (Glossy purple bubbles bunch with cute smiling face)
+        case "grapes_purple":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Vine Stem & Leaf -->
+            <path d="M30,12 Q33,5 36,4" stroke="#8B572A" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M32,10 Q42,8 43,13 Q35,16 32,10" fill="#2ED573" stroke="#2D3142" stroke-width="1.8"/>
+            <!-- Grape Bubbles Cluster -->
+            <circle cx="24" cy="20" r="7.5" fill="#8854D0" stroke="#2D3142" stroke-width="2"/>
+            <circle cx="36" cy="20" r="7.5" fill="#8854D0" stroke="#2D3142" stroke-width="2"/>
+            <circle cx="18" cy="31" r="7.5" fill="#8854D0" stroke="#2D3142" stroke-width="2"/>
+            <circle cx="42" cy="31" r="7.5" fill="#8854D0" stroke="#2D3142" stroke-width="2"/>
+            <circle cx="24" cy="41" r="7" fill="#8854D0" stroke="#2D3142" stroke-width="2"/>
+            <circle cx="36" cy="41" r="7" fill="#8854D0" stroke="#2D3142" stroke-width="2"/>
+            <circle cx="30" cy="49" r="6" fill="#8854D0" stroke="#2D3142" stroke-width="2"/>
+            <!-- Center Grape with Chibi Face -->
+            <circle cx="30" cy="30" r="8.5" fill="#9C6ADE" stroke="#2D3142" stroke-width="2"/>
+            <ellipse cx="27" cy="29" rx="2" ry="2.8" fill="#2D3142"/>
+            <circle cx="26.3" cy="28" r="0.8" fill="#FFF"/>
+            <ellipse cx="33" cy="29" rx="2" ry="2.8" fill="#2D3142"/>
+            <circle cx="32.3" cy="28" r="0.8" fill="#FFF"/>
+            <circle cx="23.5" cy="32" r="1.8" fill="#FF80AB" opacity="0.85"/>
+            <circle cx="36.5" cy="32" r="1.8" fill="#FF80AB" opacity="0.85"/>
+            <path d="M28,32 Q30,34 32,32" stroke="#2D3142" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>`;
+
+        // Purple: Terung / Eggplant (Plump teardrop brinjal with leaf hat & happy smile)
+        case "eggplant_purple":
+          return `<svg viewBox="0 0 60 60">
+            <!-- Calyx Hat & Stem -->
+            <path d="M30,13 L30,5" stroke="#2ED573" stroke-width="3" stroke-linecap="round"/>
+            <path d="M21,18 Q30,9 39,18 Q34,23 30,18" fill="#2ED573" stroke="#2D3142" stroke-width="2"/>
+            <!-- Teardrop Plump Body -->
+            <path d="M30,16 C20,16 18,30 20,44 C22,53 38,53 40,44 C42,30 40,16 30,16 Z" fill="#8854D0" stroke="#2D3142" stroke-width="2.5"/>
+            <!-- Glossy Highlight -->
+            <path d="M23,22 Q20,34 22,42" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- Chibi Face -->
+            <ellipse cx="26" cy="34" rx="2.8" ry="3.8" fill="#2D3142"/>
+            <circle cx="25" cy="32.5" r="1.3" fill="#FFF"/>
+            <ellipse cx="34" cy="34" rx="2.8" ry="3.8" fill="#2D3142"/>
+            <circle cx="33" cy="32.5" r="1.3" fill="#FFF"/>
+            <circle cx="21" cy="38" r="2.5" fill="#FF80AB" opacity="0.8"/>
+            <circle cx="39" cy="38" r="2.5" fill="#FF80AB" opacity="0.8"/>
+            <path d="M28,39 Q30,42 32,39" stroke="#2D3142" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          </svg>`;
+
+        // Nature: Leaf / Daun
+        case "leaf_green":
+          return `<svg viewBox="0 0 60 60"><path d="M16,44 C14,24 32,14 46,14 C46,28 36,46 16,44 Z" fill="#2ED573" stroke="#2D3142" stroke-width="2.5"/><path d="M16,44 Q30,30 46,14" stroke="#10AC84" stroke-width="2.5" fill="none"/><ellipse cx="30" cy="27" rx="2.5" ry="3.5" fill="#2D3142"/><circle cx="29" cy="26" r="1" fill="#FFF"/><ellipse cx="38" cy="23" rx="2.5" ry="3.5" fill="#2D3142"/><circle cx="37" cy="22" r="1" fill="#FFF"/><circle cx="26" cy="30" r="2" fill="#FF80AB"/><circle cx="42" cy="26" r="2" fill="#FF80AB"/></svg>`;
+        case "orange_fruit":
+          return `<svg viewBox="0 0 60 60"><circle cx="30" cy="33" r="18" fill="#FF7F50" stroke="#2D3142" stroke-width="2.5"/><path d="M30,15 Q34,8 36,6" stroke="#8B572A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M32,13 Q42,12 44,16 Q36,18 32,13" fill="#2ED573" stroke="#2D3142" stroke-width="1.5"/><ellipse cx="24" cy="32" rx="2.5" ry="3.5" fill="#2D3142"/><circle cx="23" cy="31" r="1.2" fill="#FFF"/><ellipse cx="36" cy="32" rx="2.5" ry="3.5" fill="#2D3142"/><circle cx="35" cy="31" r="1.2" fill="#FFF"/><circle cx="18" cy="35" r="2.5" fill="#FF80AB"/><circle cx="42" cy="35" r="2.5" fill="#FF80AB"/><path d="M27,37 Q30,40 33,37" stroke="#2D3142" stroke-width="1.8" fill="none"/></svg>`;
+        case "flower_pink":
+          return `<svg viewBox="0 0 60 60"><circle cx="30" cy="14" r="8" fill="#FF78AE" stroke="#2D3142" stroke-width="2"/><circle cx="44" cy="24" r="8" fill="#FF78AE" stroke="#2D3142" stroke-width="2"/><circle cx="40" cy="42" r="8" fill="#FF78AE" stroke="#2D3142" stroke-width="2"/><circle cx="20" cy="42" r="8" fill="#FF78AE" stroke="#2D3142" stroke-width="2"/><circle cx="16" cy="24" r="8" fill="#FF78AE" stroke="#2D3142" stroke-width="2"/><circle cx="30" cy="30" r="9" fill="#FFD32A" stroke="#2D3142" stroke-width="2"/><ellipse cx="27" cy="29" rx="2" ry="2.8" fill="#2D3142"/><circle cx="26.3" cy="28" r="0.8" fill="#FFF"/><ellipse cx="33" cy="29" rx="2" ry="2.8" fill="#2D3142"/><circle cx="32.3" cy="28" r="0.8" fill="#FFF"/><path d="M28,33 Q30,35 32,33" stroke="#2D3142" stroke-width="1.5" fill="none"/></svg>`;
+        case "icecream_pink":
+          return `<svg viewBox="0 0 60 60"><polygon points="30,54 18,28 42,28" fill="#F3A683" stroke="#2D3142" stroke-width="2"/><circle cx="30" cy="24" r="14" fill="#FF78AE" stroke="#2D3142" stroke-width="2.5"/><circle cx="30" cy="10" r="4" fill="#FF4757" stroke="#2D3142" stroke-width="1.5"/><ellipse cx="26" cy="23" rx="2" ry="2.8" fill="#2D3142"/><circle cx="25.3" cy="22" r="0.8" fill="#FFF"/><ellipse cx="34" cy="23" rx="2" ry="2.8" fill="#2D3142"/><circle cx="33.3" cy="22" r="0.8" fill="#FFF"/><circle cx="21" cy="25" r="2" fill="#FF4081"/><circle cx="39" cy="25" r="2" fill="#FF4081"/></svg>`;
+        case "bear_brown":
+          return `<svg viewBox="0 0 60 60"><circle cx="18" cy="18" r="7" fill="#8B572A" stroke="#2D3142" stroke-width="2"/><circle cx="18" cy="18" r="3.5" fill="#D29054"/><circle cx="42" cy="18" r="7" fill="#8B572A" stroke="#2D3142" stroke-width="2"/><circle cx="42" cy="18" r="3.5" fill="#D29054"/><ellipse cx="30" cy="34" rx="18" ry="16" fill="#8B572A" stroke="#2D3142" stroke-width="2.5"/><ellipse cx="30" cy="38" rx="8" ry="6" fill="#D29054"/><ellipse cx="24" cy="30" rx="2.5" ry="3.5" fill="#2D3142"/><circle cx="23" cy="29" r="1.2" fill="#FFF"/><ellipse cx="36" cy="30" rx="2.5" ry="3.5" fill="#2D3142"/><circle cx="35" cy="29" r="1.2" fill="#FFF"/><ellipse cx="30" cy="36" rx="2.5" ry="2" fill="#2D3142"/><path d="M28,40 Q30,42 32,40" stroke="#2D3142" stroke-width="1.5" fill="none"/></svg>`;
+        case "cookie_brown":
+          return `<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="18" fill="#C58343" stroke="#2D3142" stroke-width="2.5"/><circle cx="24" cy="22" r="2.5" fill="#5D3A1A"/><circle cx="34" cy="20" r="2" fill="#5D3A1A"/><circle cx="22" cy="34" r="2.5" fill="#5D3A1A"/><circle cx="32" cy="32" r="3" fill="#5D3A1A"/><circle cx="38" cy="38" r="2" fill="#5D3A1A"/><ellipse cx="27" cy="28" rx="2" ry="2.8" fill="#2D3142"/><circle cx="26.3" cy="27" r="0.8" fill="#FFF"/><ellipse cx="33" cy="28" rx="2" ry="2.8" fill="#2D3142"/><circle cx="32.3" cy="27" r="0.8" fill="#FFF"/><path d="M28,32 Q30,34 32,32" stroke="#2D3142" stroke-width="1.5" fill="none"/></svg>`;
+        case "hat_black":
+          return `<svg viewBox="0 0 60 60"><ellipse cx="30" cy="44" rx="22" ry="6" fill="#2F3542" stroke="#2D3142" stroke-width="2.5"/><rect x="20" y="16" width="20" height="26" rx="3" fill="#2F3542" stroke="#2D3142" stroke-width="2.5"/><rect x="20" y="36" width="20" height="6" fill="#FF4757"/><ellipse cx="26" cy="28" rx="2.2" ry="3" fill="#FFF"/><circle cx="26" cy="28" r="1.2" fill="#2D3142"/><ellipse cx="34" cy="28" rx="2.2" ry="3" fill="#FFF"/><circle cx="34" cy="28" r="1.2" fill="#2D3142"/><polygon points="28,36 32,36 30,42" fill="#FFD166"/></svg>`;
+        case "camera_black":
+          return `<svg viewBox="0 0 60 60"><rect x="12" y="20" width="36" height="26" rx="6" fill="#2F3542" stroke="#2D3142" stroke-width="2.5"/><rect x="18" y="14" width="10" height="6" rx="2" fill="#57606F" stroke="#2D3142" stroke-width="2"/><circle cx="30" cy="33" r="9" fill="#747D8C" stroke="#2D3142" stroke-width="2"/><circle cx="30" cy="33" r="5" fill="#2F3542"/><circle cx="28" cy="31" r="1.5" fill="#FFF"/><circle cx="41" cy="25" r="2" fill="#FF4757"/></svg>`;
+        case "sheep_white":
+          return `<svg viewBox="0 0 60 60"><ellipse cx="30" cy="34" rx="18" ry="14" fill="#FFFFFF" stroke="#2D3142" stroke-width="2.5"/><circle cx="20" cy="22" r="7" fill="#FFFFFF" stroke="#2D3142" stroke-width="2"/><circle cx="40" cy="22" r="7" fill="#FFFFFF" stroke="#2D3142" stroke-width="2"/><circle cx="30" cy="18" r="8" fill="#FFFFFF" stroke="#2D3142" stroke-width="2"/><ellipse cx="24" cy="32" rx="2.5" ry="3.5" fill="#2D3142"/><circle cx="23" cy="31" r="1.2" fill="#FFF"/><ellipse cx="36" cy="32" rx="2.5" ry="3.5" fill="#2D3142"/><circle cx="35" cy="31" r="1.2" fill="#FFF"/><circle cx="18" cy="34" r="2" fill="#FF80AB"/><circle cx="42" cy="34" r="2" fill="#FF80AB"/><path d="M28,37 Q30,39 32,37" stroke="#2D3142" stroke-width="1.5" fill="none"/></svg>`;
+        case "milk_white":
+          return `<svg viewBox="0 0 60 60"><path d="M20,20 L24,12 L36,12 L40,20 L40,50 L20,50 Z" fill="#FFFFFF" stroke="#2D3142" stroke-width="2.5"/><rect x="24" y="26" width="12" height="14" rx="2" fill="#74B9FF"/><ellipse cx="27" cy="32" rx="1.8" ry="2.5" fill="#2D3142"/><circle cx="26.5" cy="31" r="0.8" fill="#FFF"/><ellipse cx="33" cy="32" rx="1.8" ry="2.5" fill="#2D3142"/><circle cx="32.5" cy="31" r="0.8" fill="#FFF"/><path d="M28,36 Q30,38 32,36" stroke="#2D3142" stroke-width="1.5" fill="none"/></svg>`;
+        default:
+          return `<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="20" fill="#FF6B8B" stroke="#2D3142" stroke-width="2"/></svg>`;
+      }
+    }
+
+    /* ==========================================================================
+       4. OBJECT DATABASE
+       ========================================================================== */
+    const OBJECT_DATABASE = [
+      { id: "apple_red", category: "fruits", objectNameBM: "Epal", objectNameEN: "Apple", colour: "red", artworkId: "apple_red" },
+      { id: "strawberry_red", category: "fruits", objectNameBM: "Strawberi", objectNameEN: "Strawberry", colour: "red", artworkId: "strawberry_red" },
+      { id: "car_red", category: "toys", objectNameBM: "Kereta", objectNameEN: "Car", colour: "red", artworkId: "car_red" },
+      { id: "banana_yellow", category: "fruits", objectNameBM: "Pisang", objectNameEN: "Banana", colour: "yellow", artworkId: "banana_yellow" },
+      { id: "sun_yellow", category: "nature", objectNameBM: "Matahari", objectNameEN: "Sun", colour: "yellow", artworkId: "sun_yellow" },
+      { id: "chick_yellow", category: "animals", objectNameBM: "Anak Ayam", objectNameEN: "Chick", colour: "yellow", artworkId: "chick_yellow" },
+      { id: "fish_blue", category: "animals", objectNameBM: "Ikan", objectNameEN: "Fish", colour: "blue", artworkId: "fish_blue" },
+      { id: "dolphin_blue", category: "animals", objectNameBM: "Lumba-lumba", objectNameEN: "Dolphin", colour: "blue", artworkId: "dolphin_blue" },
+      { id: "balloon_blue", category: "toys", objectNameBM: "Belon", objectNameEN: "Balloon", colour: "blue", artworkId: "balloon_blue" },
+      { id: "frog_green", category: "animals", objectNameBM: "Katak", objectNameEN: "Frog", colour: "green", artworkId: "frog_green" },
+      { id: "leaf_green", category: "nature", objectNameBM: "Daun", objectNameEN: "Leaf", colour: "green", artworkId: "leaf_green" },
+      { id: "tree_green", category: "nature", objectNameBM: "Pokok", objectNameEN: "Tree", colour: "green", artworkId: "tree_green" },
+      { id: "orange_fruit", category: "fruits", objectNameBM: "Oren", objectNameEN: "Orange", colour: "orange", artworkId: "orange_fruit" },
+      { id: "carrot_orange", category: "food", objectNameBM: "Lobak", objectNameEN: "Carrot", colour: "orange", artworkId: "carrot_orange" },
+      { id: "grapes_purple", category: "fruits", objectNameBM: "Anggur", objectNameEN: "Grapes", colour: "purple", artworkId: "grapes_purple" },
+      { id: "eggplant_purple", category: "food", objectNameBM: "Terung", objectNameEN: "Eggplant", colour: "purple", artworkId: "eggplant_purple" },
+      { id: "flower_pink", category: "nature", objectNameBM: "Bunga", objectNameEN: "Flower", colour: "pink", artworkId: "flower_pink" },
+      { id: "icecream_pink", category: "food", objectNameBM: "Aiskrim", objectNameEN: "Ice Cream", colour: "pink", artworkId: "icecream_pink" },
+      { id: "bear_brown", category: "toys", objectNameBM: "Beruang", objectNameEN: "Teddy Bear", colour: "brown", artworkId: "bear_brown" },
+      { id: "cookie_brown", category: "food", objectNameBM: "Biskut", objectNameEN: "Cookie", colour: "brown", artworkId: "cookie_brown" },
+      { id: "hat_black", category: "everyday", objectNameBM: "Topi", objectNameEN: "Hat", colour: "black", artworkId: "hat_black" },
+      { id: "camera_black", category: "everyday", objectNameBM: "Kamera", objectNameEN: "Camera", colour: "black", artworkId: "camera_black" },
+      { id: "sheep_white", category: "animals", objectNameBM: "Biri-biri", objectNameEN: "Sheep", colour: "white", artworkId: "sheep_white" },
+      { id: "milk_white", category: "food", objectNameBM: "Susu", objectNameEN: "Milk", colour: "white", artworkId: "milk_white" }
+    ];
+
+    const CATEGORY_NAMES = {
+      all: { bm: "Semua", en: "All" },
+      fruits: { bm: "Buah", en: "Fruits" },
+      animals: { bm: "Haiwan", en: "Animals" },
+      toys: { bm: "Mainan", en: "Toys" },
+      food: { bm: "Makanan", en: "Food" },
+      nature: { bm: "Alam", en: "Nature" },
+      everyday: { bm: "Barang Harian", en: "Everyday Objects" }
+    };
+
+    /* ==========================================================================
+       5. STATE MANAGEMENT & LOCAL STORAGE
+       ========================================================================== */
+    const STORAGE_KEY_SETTINGS = "kk_colour_sort_settings";
+    const STORAGE_KEY_HISTORY = "kk_colour_sort_history";
+
+    const state = {
+      lang: "bm",
+      soundEnabled: true,
+      currentScreen: "screen-home",
+      gameMode: 5,
+      currentQuestionIndex: 0,
+      totalQuestions: 5,
+      score: 0,
+      totalObjectsSortedInSession: 0,
+      currentQuestion: null,
+      selectedObjectId: null,
+      sortedObjectsMap: {},
+      mascotMood: "idle"
+    };
+
+    function loadSavedSettings() {
+      try {
+        const savedSettings = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS) || "{}");
+        if (savedSettings.lang) state.lang = savedSettings.lang;
+        if (typeof savedSettings.soundEnabled === "boolean") state.soundEnabled = savedSettings.soundEnabled;
+      } catch (e) {}
+    }
+
+    function saveSettings() {
+      localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({
+        lang: state.lang,
+        soundEnabled: state.soundEnabled
+      }));
+    }
+
+    /* ==========================================================================
+       6. SOUND SYNTHESIZER
+       ========================================================================== */
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!state.soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === "tap") {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(660, now + 0.08);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === "select") {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === "correct") {
+          [659.25, 880].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, now + i * 0.06);
+            gain.gain.setValueAtTime(0.25, now + i * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25 + i * 0.06);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.06);
+            osc.stop(now + 0.25 + i * 0.06);
+          });
+        } else if (type === "wrong") {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(280, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.2);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === "complete") {
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+            gain.gain.setValueAtTime(0.25, now + idx * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.09 + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.09);
+            osc.stop(now + idx * 0.09 + 0.35);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function toggleSound() {
+      state.soundEnabled = !state.soundEnabled;
+      document.getElementById("sound-icon-holder").innerHTML = state.soundEnabled ? CUTE_ICONS.soundOn : CUTE_ICONS.soundOff;
+      saveSettings();
+      if (state.soundEnabled) playSound("tap");
+    }
+
+    /* ==========================================================================
+       7. QUESTION GENERATOR & VALIDATION
+       ========================================================================== */
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function generateQuestion(qIndex) {
+      let colourGroupCount = 2;
+      let objectCount = 4;
+
+      if (qIndex >= 3 && qIndex < 7) {
+        colourGroupCount = 3;
+        objectCount = 5;
+      } else if (qIndex >= 7) {
+        colourGroupCount = 4;
+        objectCount = 6;
+      }
+
+      const allColourKeys = Object.keys(COLOUR_DATABASE);
+      let attempts = 0;
+      let selectedColours = [];
+      let chosenObjects = [];
+      let fingerprint = "";
+
+      const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || "[]");
+
+      while (attempts < 20) {
+        attempts++;
+        selectedColours = shuffleArray(allColourKeys).slice(0, colourGroupCount);
+        
+        const candidateObjects = OBJECT_DATABASE.filter(obj => selectedColours.includes(obj.colour));
+        
+        let pickList = [];
+        selectedColours.forEach(c => {
+          const matching = candidateObjects.filter(o => o.colour === c);
+          if (matching.length > 0) {
+            pickList.push(matching[Math.floor(Math.random() * matching.length)]);
+          }
+        });
+
+        const remainingNeeded = objectCount - pickList.length;
+        const remainderPool = candidateObjects.filter(o => !pickList.some(p => p.id === o.id));
+        const extraShuffled = shuffleArray(remainderPool).slice(0, remainingNeeded);
+        chosenObjects = shuffleArray([...pickList, ...extraShuffled]);
+
+        fingerprint = `${state.lang}_${selectedColours.sort().join("-")}_${chosenObjects.map(o => o.id).sort().join("-")}`;
+        if (!history.includes(fingerprint) || attempts > 15) {
+          break;
+        }
+      }
+
+      history.push(fingerprint);
+      if (history.length > 25) history.shift();
+      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+
+      chosenObjects.forEach(obj => {
+        if (!COLOUR_DATABASE[obj.colour]) throw new Error("Invalid object colour: " + obj.colour);
+      });
+
+      const uniqueBaskets = new Set(selectedColours);
+      if (uniqueBaskets.size !== selectedColours.length) throw new Error("Duplicate baskets generated");
+
+      const randomizedBaskets = shuffleArray(selectedColours).map(cKey => COLOUR_DATABASE[cKey]);
+
+      return {
+        colours: randomizedBaskets,
+        objects: chosenObjects
+      };
+    }
+
+    /* ==========================================================================
+       8. TRANSLATIONS (STRICT BM 'TEKAN' / NO PROFILE & NO SCOREBOARD)
+       ========================================================================== */
+    const TRANSLATIONS = {
+      bm: {
+        appTitle: "Asingkan Warna",
+        langIndicator: "BM",
+        welcomeUser: "Selamat Datang!",
+        chooseActivity: "Pilih aktiviti anda hari ini:",
+        howToPlayTitle: "Cara Bermain:",
+        step1Title: "1. Tekan Objek",
+        step1Sub: "Pilih gambar comel",
+        step2Title: "2. Tekan Warna",
+        step2Sub: "Pilih bakul yang sama",
+        step3Title: "3. Berjaya!",
+        step3Sub: "Objek siap diasingkan",
+        playSort: "Asingkan Warna",
+        menuCollection: "Koleksi Gambar",
+        menuCollectionSub: "Lihat semua lukisan comel",
+        selectModeTitle: "Pilih Bilangan Soalan",
+        selectModeSubtitle: "Berapa soalan yang ingin dimainkan?",
+        mode5: "5 Soalan",
+        mode5Desc: "Pantas & Ceria",
+        mode10: "10 Soalan",
+        mode10Desc: "Sederhana & Seronok",
+        mode20: "20 Soalan",
+        mode20Desc: "Penuh Cabaran",
+        modeFree: "Main Bebas",
+        modeFreeDesc: "Main Tanpa Had",
+        back: "Kembali",
+        hudQ: "SOALAN",
+        hudSorted: "DIASINGKAN",
+        instructionDefault: "Tekan objek, kemudian tekan warna yang betul.",
+        instructionSelected: "Objek dipilih! Sekarang tekan bakul warna yang sepadan.",
+        stageUnsorted: "Objek Untuk Diasingkan:",
+        stageBaskets: "Bakul Warna:",
+        quitGame: "Keluar",
+        toastTryAgain: "Cuba lagi!",
+        toastGreat: "Hebat! Tepat sekali!",
+        congratsTitle: "Tahniah! Hebatnya!",
+        congratsMsg: "Anda telah berjaya mengasingkan semua warna!",
+        totalScore: "Jumlah Skor",
+        totalSorted: "Objek Diasingkan",
+        totalQuestions: "Soalan Selesai",
+        playAgain: "Main Lagi",
+        homeMenu: "Menu Utama",
+        collectionTitle: "Koleksi Gambar",
+        modalClose: "Tutup",
+        mascotIdle: "Hai! Jom asingkan warna sama-sama!",
+        mascotSelect: "Pilihan yang comel! Tekan bakul warnanya.",
+        mascotCorrect: "Wah, pandainya! Tepat sekali!",
+        mascotWrong: "Eh, cuba lagi kawan!",
+        mascotCelebrate: "Yey! Semua objek telah diasingkan!"
+      },
+      en: {
+        appTitle: "Colour Sort",
+        langIndicator: "EN",
+        welcomeUser: "Welcome!",
+        chooseActivity: "Choose today's activity:",
+        howToPlayTitle: "How to Play:",
+        step1Title: "1. Tap Object",
+        step1Sub: "Pick a cute picture",
+        step2Title: "2. Tap Colour",
+        step2Sub: "Pick matching basket",
+        step3Title: "3. Sorted!",
+        step3Sub: "Hooray, it's sorted!",
+        playSort: "Colour Sort",
+        menuCollection: "Picture Collection",
+        menuCollectionSub: "Explore all cute artworks",
+        selectModeTitle: "Choose Question Count",
+        selectModeSubtitle: "How many questions to play?",
+        mode5: "5 Questions",
+        mode5Desc: "Quick & Cheerful",
+        mode10: "10 Questions",
+        mode10Desc: "Medium & Fun",
+        mode20: "20 Questions",
+        mode20Desc: "Full Challenge",
+        modeFree: "Free Play",
+        modeFreeDesc: "Endless Play",
+        back: "Back",
+        hudQ: "QUESTION",
+        hudSorted: "SORTED",
+        instructionDefault: "Tap an object, then tap the matching colour.",
+        instructionSelected: "Object selected! Now tap its matching colour basket.",
+        stageUnsorted: "Objects to Sort:",
+        stageBaskets: "Colour Baskets:",
+        quitGame: "Exit",
+        toastTryAgain: "Try again!",
+        toastGreat: "Great job! Exactly right!",
+        congratsTitle: "Congratulations! Awesome!",
+        congratsMsg: "You have sorted all the colours successfully!",
+        totalScore: "Total Score",
+        totalSorted: "Objects Sorted",
+        totalQuestions: "Completed Questions",
+        playAgain: "Play Again",
+        homeMenu: "Main Menu",
+        collectionTitle: "Picture Collection",
+        modalClose: "Close",
+        mascotIdle: "Hi! Let's sort colours together!",
+        mascotSelect: "Cute choice! Tap its colour basket.",
+        mascotCorrect: "Yay, so smart! Exactly right!",
+        mascotWrong: "Oops, try again friend!",
+        mascotCelebrate: "Hooray! All objects are sorted!"
+      }
+    };
+
+    function applyTranslations() {
+      const t = TRANSLATIONS[state.lang];
+      document.documentElement.lang = state.lang;
+      
+      document.getElementById("lbl-app-title").textContent = t.appTitle;
+      document.getElementById("lbl-lang-indicator").textContent = t.langIndicator;
+
+      // Home Screen
+      document.getElementById("txt-welcome-user").textContent = t.welcomeUser;
+      document.getElementById("txt-choose-activity").textContent = t.chooseActivity;
+      document.getElementById("txt-htp-title").textContent = t.howToPlayTitle;
+      document.getElementById("txt-step1-title").textContent = t.step1Title;
+      document.getElementById("txt-step1-sub").textContent = t.step1Sub;
+      document.getElementById("txt-step2-title").textContent = t.step2Title;
+      document.getElementById("txt-step2-sub").textContent = t.step2Sub;
+      document.getElementById("txt-step3-title").textContent = t.step3Title;
+      document.getElementById("txt-step3-sub").textContent = t.step3Sub;
+
+      document.getElementById("lbl-play-sort-game").textContent = t.playSort;
+      document.getElementById("lbl-menu-collection").textContent = t.menuCollection;
+      document.getElementById("lbl-menu-collection-sub").textContent = t.menuCollectionSub;
+
+      // Mode Select Screen
+      document.getElementById("txt-select-mode-title").textContent = t.selectModeTitle;
+      document.getElementById("txt-select-mode-subtitle").textContent = t.selectModeSubtitle;
+      document.getElementById("lbl-mode-5").textContent = t.mode5;
+      document.getElementById("lbl-mode-5-desc").textContent = t.mode5Desc;
+      document.getElementById("lbl-mode-10").textContent = t.mode10;
+      document.getElementById("lbl-mode-10-desc").textContent = t.mode10Desc;
+      document.getElementById("lbl-mode-20").textContent = t.mode20;
+      document.getElementById("lbl-mode-20-desc").textContent = t.mode20Desc;
+      document.getElementById("lbl-mode-free").textContent = t.modeFree;
+      document.getElementById("lbl-mode-free-desc").textContent = t.modeFreeDesc;
+      document.getElementById("lbl-back-home").textContent = t.back;
+
+      // Gameplay Screen
+      document.getElementById("lbl-hud-q").textContent = t.hudQ;
+      document.getElementById("lbl-hud-sorted").textContent = t.hudSorted;
+      document.getElementById("txt-game-instruction").textContent = state.selectedObjectId ? t.instructionSelected : t.instructionDefault;
+      document.getElementById("lbl-stage-unsorted").textContent = t.stageUnsorted;
+      document.getElementById("lbl-stage-baskets").textContent = t.stageBaskets;
+      document.getElementById("lbl-quit-game").textContent = t.quitGame;
+
+      // Result Screen
+      document.getElementById("txt-result-congrats").textContent = t.congratsTitle;
+      document.getElementById("txt-result-message").textContent = t.congratsMsg;
+      document.getElementById("lbl-res-score").textContent = t.totalScore;
+      document.getElementById("lbl-res-sorted").textContent = t.totalSorted;
+      document.getElementById("lbl-res-questions").textContent = t.totalQuestions;
+      document.getElementById("lbl-btn-play-again").textContent = t.playAgain;
+      document.getElementById("lbl-btn-home-result").textContent = t.homeMenu;
+
+      // Collection
+      document.getElementById("txt-collection-title").textContent = t.collectionTitle;
+      document.getElementById("lbl-coll-back").textContent = t.back;
+      document.getElementById("lbl-modal-close").textContent = t.modalClose;
+
+      setMascotState(state.mascotMood);
+
+      if (state.currentScreen === "screen-game" && state.currentQuestion) {
+        renderQuestionUI();
+      } else if (state.currentScreen === "screen-collection") {
+        renderCollectionScreen();
+      }
+    }
+
+    function toggleLanguage() {
+      state.lang = state.lang === "bm" ? "en" : "bm";
+      saveSettings();
+      playSound("tap");
+      applyTranslations();
+    }
+
+    /* ==========================================================================
+       9. MASCOT COMPANION
+       ========================================================================== */
+    function setMascotState(mood, customText) {
+      state.mascotMood = mood;
+      const t = TRANSLATIONS[state.lang];
+      const mascotFace = document.getElementById("mascot-face");
+      const speech = document.getElementById("mascot-speech-text");
+      const mouth = document.getElementById("mascot-mouth");
+
+      mascotFace.className = "mascot-avatar";
+
+      let msg = "";
+      if (mood === "idle") {
+        mascotFace.classList.add("mascot-idle");
+        mouth.setAttribute("d", "M 27 42 Q 30 45 33 42");
+        msg = customText || t.mascotIdle;
+      } else if (mood === "selected") {
+        mascotFace.classList.add("mascot-idle");
+        mouth.setAttribute("d", "M 27 42 Q 30 46 33 42");
+        msg = customText || t.mascotSelect;
+      } else if (mood === "correct") {
+        mascotFace.classList.add("mascot-happy");
+        mouth.setAttribute("d", "M 26 41 Q 30 48 34 41");
+        msg = customText || t.mascotCorrect;
+      } else if (mood === "wrong") {
+        mascotFace.classList.add("mascot-confused");
+        mouth.setAttribute("d", "M 27 44 Q 30 41 33 44");
+        msg = customText || t.mascotWrong;
+      } else if (mood === "celebrate") {
+        mascotFace.classList.add("mascot-happy");
+        mouth.setAttribute("d", "M 25 40 Q 30 50 35 40");
+        msg = customText || t.mascotCelebrate;
+      }
+
+      speech.textContent = msg;
+    }
+
+    /* ==========================================================================
+       10. NAVIGATION
+       ========================================================================== */
+    function navigateTo(screenId) {
+      playSound("tap");
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      const target = document.getElementById(screenId);
+      if (target) {
+        target.classList.add("active");
+        state.currentScreen = screenId;
+      }
+      if (screenId === "screen-home") {
+        setMascotState("idle");
+      }
+    }
+
+    /* ==========================================================================
+       11. GAMEPLAY LOGIC (TWO-STEP PRESS-TO-SORT)
+       ========================================================================== */
+    function startGameWithMode(mode) {
+      state.gameMode = mode;
+      state.currentQuestionIndex = 0;
+      state.totalQuestions = (mode === "free") ? 999 : mode;
+      state.score = 0;
+      state.totalObjectsSortedInSession = 0;
+      
+      playSound("tap");
+      loadNextQuestion();
+      navigateTo("screen-game");
+    }
+
+    function loadNextQuestion() {
+      state.currentQuestionIndex++;
+      state.selectedObjectId = null;
+      state.sortedObjectsMap = {};
+
+      state.currentQuestion = generateQuestion(state.currentQuestionIndex);
+
+      setMascotState("idle");
+      renderQuestionUI();
+      updateHUD();
+    }
+
+    function renderQuestionUI() {
+      if (!state.currentQuestion) return;
+      const q = state.currentQuestion;
+      const t = TRANSLATIONS[state.lang];
+
+      document.getElementById("txt-game-instruction").textContent = state.selectedObjectId ? t.instructionSelected : t.instructionDefault;
+
+      // Render Unsorted Objects
+      const unsortedTray = document.getElementById("unsorted-objects-tray");
+      unsortedTray.innerHTML = "";
+
+      const unsortedList = q.objects.filter(o => !state.sortedObjectsMap[o.id]);
+
+      unsortedList.forEach(obj => {
+        const itemBtn = document.createElement("div");
+        itemBtn.className = "chibi-object-item";
+        if (state.selectedObjectId === obj.id) {
+          itemBtn.classList.add("selected");
+          
+          const indicator = document.createElement("div");
+          indicator.className = "select-indicator-badge";
+          indicator.innerHTML = CUTE_ICONS.pointerDown;
+          itemBtn.appendChild(indicator);
+        }
+        itemBtn.onclick = () => onObjectPressed(obj.id);
+
+        const svgWrap = document.createElement("div");
+        svgWrap.className = "obj-svg-wrapper";
+        svgWrap.innerHTML = getArtworkSvg(obj.artworkId);
+
+        const nameTag = document.createElement("div");
+        nameTag.className = "obj-name-tag";
+        nameTag.textContent = state.lang === "bm" ? obj.objectNameBM : obj.objectNameEN;
+
+        itemBtn.appendChild(svgWrap);
+        itemBtn.appendChild(nameTag);
+        unsortedTray.appendChild(itemBtn);
+      });
+
+      // Render Colour Baskets
+      const basketsTray = document.getElementById("baskets-tray");
+      basketsTray.innerHTML = "";
+
+      q.colours.forEach(col => {
+        const basketCard = document.createElement("div");
+        basketCard.className = "colour-basket";
+        basketCard.style.color = col.hex;
+        basketCard.style.borderColor = col.hex;
+        basketCard.style.backgroundColor = col.lightHex;
+
+        if (state.selectedObjectId) {
+          basketCard.classList.add("target-active");
+        }
+
+        basketCard.onclick = () => onBasketPressed(col.id);
+
+        const topHead = document.createElement("div");
+        topHead.className = "basket-top-header";
+
+        const dot = document.createElement("div");
+        dot.className = "colour-dot";
+        dot.style.backgroundColor = col.hex;
+
+        const title = document.createElement("div");
+        title.className = "basket-title";
+        title.textContent = state.lang === "bm" ? col.nameBM : col.nameEN;
+
+        topHead.appendChild(dot);
+        topHead.appendChild(title);
+
+        const sub = document.createElement("div");
+        sub.className = "basket-subtext";
+        sub.textContent = state.lang === "bm" ? col.basketLabelBM : col.basketLabelEN;
+
+        const interior = document.createElement("div");
+        interior.className = "basket-interior";
+
+        q.objects.forEach(obj => {
+          if (state.sortedObjectsMap[obj.id] && obj.colour === col.id) {
+            const miniObj = document.createElement("div");
+            miniObj.className = "sorted-mini-object";
+            miniObj.innerHTML = getArtworkSvg(obj.artworkId) + `<span class="sorted-mini-badge">${CUTE_ICONS.checkMini}</span>`;
+            interior.appendChild(miniObj);
+          }
+        });
+
+        basketCard.appendChild(topHead);
+        basketCard.appendChild(sub);
+        basketCard.appendChild(interior);
+        basketsTray.appendChild(basketCard);
+      });
+    }
+
+    function onObjectPressed(objId) {
+      if (state.sortedObjectsMap[objId]) return;
+
+      state.selectedObjectId = objId;
+      playSound("select");
+
+      const objData = state.currentQuestion.objects.find(o => o.id === objId);
+      const name = state.lang === "bm" ? objData.objectNameBM : objData.objectNameEN;
+      
+      const selectMsg = state.lang === "bm"
+        ? `Anda telah memilih ${name}! Tekan bakul warna yang betul.`
+        : `You selected ${name}! Tap the matching colour basket.`;
+
+      setMascotState("selected", selectMsg);
+      renderQuestionUI();
+    }
+
+    function onBasketPressed(basketColourId) {
+      const t = TRANSLATIONS[state.lang];
+
+      if (!state.selectedObjectId) {
+        showToast(state.lang === "bm" ? "Sila tekan satu objek dahulu!" : "Please tap an object first!", "bulb");
+        playSound("tap");
+        return;
+      }
+
+      const selectedObj = state.currentQuestion.objects.find(o => o.id === state.selectedObjectId);
+      if (!selectedObj) return;
+
+      if (selectedObj.colour === basketColourId) {
+        playSound("correct");
+        state.sortedObjectsMap[selectedObj.id] = true;
+        state.score += 5;
+        state.totalObjectsSortedInSession++;
+
+        state.selectedObjectId = null;
+
+        setMascotState("correct");
+        showToast(t.toastGreat, "sparkle");
+        
+        renderQuestionUI();
+        updateHUD();
+
+        const totalObjectsInQ = state.currentQuestion.objects.length;
+        const sortedCount = Object.keys(state.sortedObjectsMap).length;
+
+        if (sortedCount >= totalObjectsInQ) {
+          state.score += 5;
+          updateHUD();
+          playSound("complete");
+          setMascotState("celebrate");
+
+          setTimeout(() => {
+            if (state.gameMode !== "free" && state.currentQuestionIndex >= state.totalQuestions) {
+              finishGame();
+            } else {
+              loadNextQuestion();
+            }
+          }, 1100);
+        }
+
+      } else {
+        playSound("wrong");
+        setMascotState("wrong");
+        showToast(t.toastTryAgain, "bulb");
+
+        const unsortedTray = document.getElementById("unsorted-objects-tray");
+        const items = unsortedTray.querySelectorAll(".chibi-object-item");
+        items.forEach(it => {
+          if (it.classList.contains("selected")) {
+            it.classList.add("shaking");
+            setTimeout(() => it.classList.remove("shaking"), 500);
+          }
+        });
+      }
+    }
+
+    function updateHUD() {
+      const qCounter = document.getElementById("hud-question-counter");
+      const sCounter = document.getElementById("hud-sorted-counter");
+      const scoreDisp = document.getElementById("hud-score-counter");
+
+      if (state.gameMode === "free") {
+        qCounter.textContent = `${state.currentQuestionIndex}`;
+      } else {
+        qCounter.textContent = `${state.currentQuestionIndex} / ${state.totalQuestions}`;
+      }
+
+      const totalInQ = state.currentQuestion ? state.currentQuestion.objects.length : 0;
+      const sortedInQ = Object.keys(state.sortedObjectsMap).length;
+      sCounter.textContent = `${sortedInQ} / ${totalInQ}`;
+
+      scoreDisp.textContent = `${state.score}`;
+    }
+
+    function finishGame() {
+      document.getElementById("res-final-score").textContent = state.score;
+      document.getElementById("res-total-sorted").textContent = state.totalObjectsSortedInSession;
+      document.getElementById("res-total-questions").textContent = state.currentQuestionIndex;
+
+      navigateTo("screen-result");
+    }
+
+    function replayGame() {
+      startGameWithMode(state.gameMode);
+    }
+
+    function confirmQuitGame() {
+      navigateTo("screen-home");
+    }
+
+    /* ==========================================================================
+       12. PICTURE COLLECTION
+       ========================================================================== */
+    let currentCollectionCategory = "all";
+
+    function openCollectionScreen() {
+      currentCollectionCategory = "all";
+      renderCollectionScreen();
+      navigateTo("screen-collection");
+    }
+
+    function renderCollectionScreen() {
+      const categoriesBar = document.getElementById("collection-categories-bar");
+      const grid = document.getElementById("collection-grid");
+
+      categoriesBar.innerHTML = "";
+      const catKeys = Object.keys(CATEGORY_NAMES);
+
+      catKeys.forEach(catKey => {
+        const chip = document.createElement("div");
+        chip.className = `cat-chip ${currentCollectionCategory === catKey ? "active" : ""}`;
+        chip.textContent = state.lang === "bm" ? CATEGORY_NAMES[catKey].bm : CATEGORY_NAMES[catKey].en;
+        chip.onclick = () => {
+          currentCollectionCategory = catKey;
+          playSound("tap");
+          renderCollectionScreen();
+        };
+        categoriesBar.appendChild(chip);
+      });
+
+      grid.innerHTML = "";
+      const filtered = currentCollectionCategory === "all"
+        ? OBJECT_DATABASE
+        : OBJECT_DATABASE.filter(o => o.category === currentCollectionCategory);
+
+      filtered.forEach(obj => {
+        const card = document.createElement("div");
+        card.className = "gallery-item-card";
+        card.onclick = () => openArtworkModal(obj);
+
+        const svgWrap = document.createElement("div");
+        svgWrap.className = "gallery-item-svg";
+        svgWrap.innerHTML = getArtworkSvg(obj.artworkId);
+
+        const name = document.createElement("div");
+        name.className = "gallery-item-name";
+        name.textContent = state.lang === "bm" ? obj.objectNameBM : obj.objectNameEN;
+
+        card.appendChild(svgWrap);
+        card.appendChild(name);
+        grid.appendChild(card);
+      });
+    }
+
+    function openArtworkModal(obj) {
+      playSound("select");
+      const modal = document.getElementById("artwork-modal");
+      const holder = document.getElementById("modal-svg-holder");
+      const name = document.getElementById("modal-art-name");
+      const col = document.getElementById("modal-art-colour");
+      const cat = document.getElementById("modal-art-category");
+
+      holder.innerHTML = getArtworkSvg(obj.artworkId);
+      name.textContent = `${obj.objectNameBM} / ${obj.objectNameEN}`;
+      
+      const colData = COLOUR_DATABASE[obj.colour];
+      const colName = state.lang === "bm" ? colData.nameBM : colData.nameEN;
+      const catName = state.lang === "bm" ? CATEGORY_NAMES[obj.category].bm : CATEGORY_NAMES[obj.category].en;
+
+      col.textContent = state.lang === "bm" ? `Warna: ${colName}` : `Colour: ${colName}`;
+      col.style.color = colData.hex;
+
+      cat.textContent = state.lang === "bm" ? `Kategori: ${catName}` : `Category: ${catName}`;
+
+      modal.classList.add("show");
+    }
+
+    function closeArtworkModal() {
+      playSound("tap");
+      document.getElementById("artwork-modal").classList.remove("show");
+    }
+
+    /* ==========================================================================
+       13. TOAST NOTIFICATIONS (WITH CUTE SVGS)
+       ========================================================================== */
+    let toastTimeout = null;
+    function showToast(text, iconType = "sparkle") {
+      const toast = document.getElementById("toast-message");
+      document.getElementById("toast-text").textContent = text;
+      
+      const iconHolder = document.getElementById("toast-icon");
+      iconHolder.innerHTML = CUTE_ICONS[iconType] || CUTE_ICONS.sparkle;
+
+      toast.classList.add("show");
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1600);
+    }
+
+    /* ==========================================================================
+       14. INJECT STATIC CUTE SVGS INTO DOM
+       ========================================================================== */
+    function injectCuteSVGs() {
+      document.getElementById("logo-icon-holder").innerHTML = CUTE_ICONS.palette;
+      document.getElementById("icon-lang-holder").innerHTML = CUTE_ICONS.globe;
+      document.getElementById("sound-icon-holder").innerHTML = state.soundEnabled ? CUTE_ICONS.soundOn : CUTE_ICONS.soundOff;
+      document.getElementById("btn-icon-play").innerHTML = CUTE_ICONS.gamepad;
+      document.getElementById("card-icon-collection").innerHTML = CUTE_ICONS.gallery;
+      document.getElementById("icon-back-modes").innerHTML = CUTE_ICONS.arrowBack;
+      document.getElementById("hud-star-icon").innerHTML = CUTE_ICONS.star;
+      document.getElementById("instruction-pointer-icon").innerHTML = CUTE_ICONS.pointerHand;
+      document.getElementById("stage-bear-icon").innerHTML = CUTE_ICONS.bear;
+      document.getElementById("stage-basket-icon").innerHTML = CUTE_ICONS.basket;
+      document.getElementById("icon-quit-game").innerHTML = CUTE_ICONS.home;
+      document.getElementById("result-celebrate-holder").innerHTML = CUTE_ICONS.celebrate;
+      document.getElementById("icon-replay-btn").innerHTML = CUTE_ICONS.replay;
+      document.getElementById("icon-home-btn").innerHTML = CUTE_ICONS.home;
+      document.getElementById("icon-coll-back").innerHTML = CUTE_ICONS.arrowBack;
+
+      // Inject How To Play icons
+      document.getElementById("icon-htp-bulb").innerHTML = CUTE_ICONS.bulb;
+      document.getElementById("htp-step1-icon").innerHTML = HTP_STEP_SVGS.step1;
+      document.getElementById("htp-step2-icon").innerHTML = HTP_STEP_SVGS.step2;
+      document.getElementById("htp-step3-icon").innerHTML = HTP_STEP_SVGS.step3;
+    }
+
+    /* ==========================================================================
+       15. INITIALIZATION ON DOM READY
+       ========================================================================== */
+    window.addEventListener("DOMContentLoaded", () => {
+      loadSavedSettings();
+      injectCuteSVGs();
+      applyTranslations();
+      navigateTo("screen-home");
+    });
+  </script>
+</body>
+</html>
